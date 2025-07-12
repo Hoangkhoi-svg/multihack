@@ -1,0 +1,2 @@
+# multihack
+wallhop + fly + noclip
