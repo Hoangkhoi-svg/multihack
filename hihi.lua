@@ -5,6 +5,7 @@ local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
+--// ✅ UI SETUP
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "Hihi_UI"
 gui.ResetOnSpawn = false
@@ -18,13 +19,39 @@ Instance.new("UICorner", menu)
 
 local title = Instance.new("TextLabel", menu)
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Text = "📌 Hihi Menu"
+title.Text = "📌 Hihi Menu (Draggable)"
 title.BackgroundTransparency = 1
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true
 
--- Save Position Button
+--// ✅ DRAGGABLE MENU FUNCTION (Mobile & PC)
+local dragging, dragStart, startPos
+menu.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = menu.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+menu.InputChanged:Connect(function(input)
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = input.Position - dragStart
+		menu.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+--// ✅ BUTTONS
+local savedPos = nil
+local tpEnabled = false
+
 local saveBtn = Instance.new("TextButton", menu)
 saveBtn.Size = UDim2.new(1, -20, 0, 30)
 saveBtn.Position = UDim2.new(0, 10, 0, 40)
@@ -35,7 +62,6 @@ saveBtn.Font = Enum.Font.Gotham
 saveBtn.TextScaled = true
 Instance.new("UICorner", saveBtn)
 
--- Teleport Button
 local teleBtn = Instance.new("TextButton", menu)
 teleBtn.Size = UDim2.new(1, -20, 0, 30)
 teleBtn.Position = UDim2.new(0, 10, 0, 80)
@@ -46,7 +72,6 @@ teleBtn.Font = Enum.Font.Gotham
 teleBtn.TextScaled = true
 Instance.new("UICorner", teleBtn)
 
--- Click TP Toggle
 local tpBtn = Instance.new("TextButton", menu)
 tpBtn.Size = UDim2.new(1, -20, 0, 30)
 tpBtn.Position = UDim2.new(0, 10, 0, 120)
@@ -57,10 +82,7 @@ tpBtn.Font = Enum.Font.GothamBold
 tpBtn.TextScaled = true
 Instance.new("UICorner", tpBtn)
 
--- Functionality
-local savedPos = nil
-local tpEnabled = false
-
+--// ✅ FUNCTIONALITY
 saveBtn.MouseButton1Click:Connect(function()
 	local char = player.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
@@ -68,7 +90,7 @@ saveBtn.MouseButton1Click:Connect(function()
 		StarterGui:SetCore("SendNotification", {
 			Title = "✅ Đã lưu vị trí",
 			Text = tostring(savedPos),
-			Duration = 3
+			Duration = 2
 		})
 	end
 end)
@@ -83,7 +105,7 @@ teleBtn.MouseButton1Click:Connect(function()
 		StarterGui:SetCore("SendNotification", {
 			Title = "⚠️ Chưa lưu vị trí!",
 			Text = "Vui lòng nhấn Save trước.",
-			Duration = 3
+			Duration = 2
 		})
 	end
 end)
@@ -94,6 +116,7 @@ tpBtn.MouseButton1Click:Connect(function()
 	tpBtn.BackgroundColor3 = tpEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(100, 100, 100)
 end)
 
+-- Click TP (Mobile only)
 UIS.TouchTap:Connect(function(_, isProcessed)
 	if tpEnabled and not isProcessed and mouse.Hit then
 		local pos = mouse.Hit.Position
