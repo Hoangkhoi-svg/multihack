@@ -146,6 +146,23 @@ jpBox.FocusLost:Connect(function()
     if v then SavedJump=v end
 end)
 
+-- Toggle Hitbox
+local hitboxToggle = panel:FindFirstChild("HitboxToggle") or Instance.new("TextButton", panel)
+hitboxToggle.Name = "HitboxToggle"
+hitboxToggle.Size = UDim2.new(1, -10, 0, 30)
+hitboxToggle.Position = UDim2.new(0, 5, 0, 75)
+hitboxToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+hitboxToggle.TextColor3 = Color3.new(1,1,1)
+hitboxToggle.Font = Enum.Font.GothamBold
+hitboxToggle.TextScaled = true
+hitboxToggle.Text = _G.Disabled and "🎯 Hitbox: ON" or "🎯 Hitbox: OFF"
+
+hitboxToggle.MouseButton1Click:Connect(function()
+    _G.Disabled = not _G.Disabled
+    hitboxToggle.Text = _G.Disabled and "🎯 Hitbox: ON" or "🎯 Hitbox: OFF"
+    hitboxToggle.BackgroundColor3 = _G.Disabled and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(80, 80, 80)
+end)
+
 -- Teleport Button
 local tpBtn = gui:FindFirstChild("TPButton") or Instance.new("TextButton",gui)
 tpBtn.Name="TPButton"; tpBtn.Size=UDim2.new(0,160,0,35); tpBtn.Position=UDim2.new(0,20,0,110)
