@@ -162,7 +162,7 @@ hitboxToggle.MouseButton1Click:Connect(function()
     hitboxToggle.Text = _G.Disabled and "🎯 Hitbox: ON" or "🎯 Hitbox: OFF"
     hitboxToggle.BackgroundColor3 = _G.Disabled and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(80, 80, 80)
 
-    -- Nếu OFF thì reset hitbox toàn bộ
+    -- Nếu OFF thì reset lại HumanoidRootPart
     if not _G.Disabled then
         for _, v in pairs(Players:GetPlayers()) do
             if v ~= Players.LocalPlayer then
