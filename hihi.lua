@@ -1,78 +1,101 @@
---// ✅ SAVE & TELEPORT TO SAVED POSITION
-local SavedPosition = nil
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+gui.Name = "Hihi_UI"
+gui.ResetOnSpawn = false
+
+local menu = Instance.new("Frame", gui)
+menu.Size = UDim2.new(0, 200, 0, 160)
+menu.Position = UDim2.new(0, 20, 0.7, 0)
+menu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+menu.BorderSizePixel = 0
+Instance.new("UICorner", menu)
+
+local title = Instance.new("TextLabel", menu)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "📌 Hihi Menu"
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
 
 -- Save Position Button
 local saveBtn = Instance.new("TextButton", menu)
-saveBtn.Size = UDim2.new(1, -20, 0, 40)
-saveBtn.Position = UDim2.new(0, 10, 0, 310)
-saveBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+saveBtn.Size = UDim2.new(1, -20, 0, 30)
+saveBtn.Position = UDim2.new(0, 10, 0, 40)
+saveBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 saveBtn.TextColor3 = Color3.new(1,1,1)
-saveBtn.Font = Enum.Font.GothamBold
-saveBtn.TextScaled = true
 saveBtn.Text = "💾 Save Position"
+saveBtn.Font = Enum.Font.Gotham
+saveBtn.TextScaled = true
 Instance.new("UICorner", saveBtn)
+
+-- Teleport Button
+local teleBtn = Instance.new("TextButton", menu)
+teleBtn.Size = UDim2.new(1, -20, 0, 30)
+teleBtn.Position = UDim2.new(0, 10, 0, 80)
+teleBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+teleBtn.TextColor3 = Color3.new(1,1,1)
+teleBtn.Text = "🚀 Teleport to Saved"
+teleBtn.Font = Enum.Font.Gotham
+teleBtn.TextScaled = true
+Instance.new("UICorner", teleBtn)
+
+-- Click TP Toggle
+local tpBtn = Instance.new("TextButton", menu)
+tpBtn.Size = UDim2.new(1, -20, 0, 30)
+tpBtn.Position = UDim2.new(0, 10, 0, 120)
+tpBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+tpBtn.TextColor3 = Color3.new(1,1,1)
+tpBtn.Text = "🛸 Click TP: OFF"
+tpBtn.Font = Enum.Font.GothamBold
+tpBtn.TextScaled = true
+Instance.new("UICorner", tpBtn)
+
+-- Functionality
+local savedPos = nil
+local tpEnabled = false
 
 saveBtn.MouseButton1Click:Connect(function()
 	local char = player.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
-		SavedPosition = char.HumanoidRootPart.Position
+		savedPos = char.HumanoidRootPart.Position
 		StarterGui:SetCore("SendNotification", {
-			Title = "📍 Đã lưu vị trí",
-			Text = tostring(SavedPosition),
-			Duration = 2
+			Title = "✅ Đã lưu vị trí",
+			Text = tostring(savedPos),
+			Duration = 3
 		})
 	end
 end)
 
--- Teleport to Saved Position Button
-local teleBtn = Instance.new("TextButton", menu)
-teleBtn.Size = UDim2.new(1, -20, 0, 40)
-teleBtn.Position = UDim2.new(0, 10, 0, 360)
-teleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-teleBtn.TextColor3 = Color3.new(1,1,1)
-teleBtn.Font = Enum.Font.GothamBold
-teleBtn.TextScaled = true
-teleBtn.Text = "🚀 Teleport to Save"
-Instance.new("UICorner", teleBtn)
-
 teleBtn.MouseButton1Click:Connect(function()
-	if SavedPosition then
+	if savedPos then
 		local char = player.Character
 		if char and char:FindFirstChild("HumanoidRootPart") then
-			char.HumanoidRootPart.CFrame = CFrame.new(SavedPosition + Vector3.new(0, 3, 0))
+			char.HumanoidRootPart.CFrame = CFrame.new(savedPos + Vector3.new(0, 3, 0))
 		end
 	else
 		StarterGui:SetCore("SendNotification", {
 			Title = "⚠️ Chưa lưu vị trí!",
-			Text = "Nhấn Save trước đã.",
-			Duration = 2
+			Text = "Vui lòng nhấn Save trước.",
+			Duration = 3
 		})
 	end
 end)
 
---// ✅ CLICK TELEPORT (MOBILE ONLY)
-local teleportEnabled = false
-
--- Toggle TP Button
-local tpToggle = Instance.new("TextButton", menu)
-tpToggle.Size = UDim2.new(1, -20, 0, 40)
-tpToggle.Position = UDim2.new(0, 10, 0, 410)
-tpToggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
-tpToggle.TextColor3 = Color3.new(1,1,1)
-tpToggle.Font = Enum.Font.GothamBold
-tpToggle.TextScaled = true
-tpToggle.Text = "🛸 Click TP: OFF"
-Instance.new("UICorner", tpToggle)
-
-tpToggle.MouseButton1Click:Connect(function()
-	teleportEnabled = not teleportEnabled
-	tpToggle.Text = teleportEnabled and "🛸 Click TP: ON" or "🛸 Click TP: OFF"
-	tpToggle.BackgroundColor3 = teleportEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 60)
+tpBtn.MouseButton1Click:Connect(function()
+	tpEnabled = not tpEnabled
+	tpBtn.Text = tpEnabled and "🛸 Click TP: ON" or "🛸 Click TP: OFF"
+	tpBtn.BackgroundColor3 = tpEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(100, 100, 100)
 end)
 
--- Chạm màn hình để TP (Mobile Only)
 UIS.TouchTap:Connect(function(_, isProcessed)
-	if teleportEnabled and not isProcessed and mouse.Hit then
+	if tpEnabled and not isProcessed and mouse.Hit then
 		local pos = mouse.Hit.Position
 		local char = player.Character
 		if char and char:FindFirstChild("HumanoidRootPart") then
