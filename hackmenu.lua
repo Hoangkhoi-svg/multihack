@@ -89,25 +89,37 @@ function createESP(p)
     if p == player then return end
     p.CharacterAdded:Connect(function(char)
         repeat wait() until char:FindFirstChild("Head")
-        local b = Instance.new("BillboardGui", char.Head)
-        b.Name = "KOIHXZ_ESP"
-        b.Size = UDim2.new(0,60,0,20)
-        b.Adornee = char.Head
-        b.AlwaysOnTop = true
-        local t = Instance.new("TextLabel", b)
-        t.Size = UDim2.new(1,0,1,0)
-        t.BackgroundTransparency = 1
-        t.Text = p.Name
-        t.TextColor3 = Color3.new(1,1,1)
-        t.TextStrokeTransparency = 0
-        t.TextScaled = true
-        t.Font = Enum.Font.GothamBold
+        local head = char:FindFirstChild("Head")
+        if head and not head:FindFirstChild("KOIHXZ_ESP") then
+            local b = Instance.new("BillboardGui", head)
+            b.Name = "KOIHXZ_ESP"
+            b.Size = UDim2.new(0,60,0,20)
+            b.Adornee = head
+            b.AlwaysOnTop = true
+
+            local t = Instance.new("TextLabel", b)
+            t.Size = UDim2.new(1,0,1,0)
+            t.BackgroundTransparency = 1
+            t.Text = p.Name
+            t.TextColor3 = Color3.new(1,1,1)
+            t.TextStrokeTransparency = 0
+            t.TextScaled = true
+            t.Font = Enum.Font.GothamBold
+        end
     end)
 end
+
+-- Áp dụng cho người chơi hiện có
 for _, p in pairs(Players:GetPlayers()) do
-    if p ~= player then createESP(p) end
+    if p ~= player then
+        createESP(p)
+    end
 end
-Players.PlayerAdded:Connect(createESP)
+
+-- Áp dụng cho người mới
+Players.PlayerAdded:Connect(function(p)
+    createESP(p)
+end)
 
 --// ✅ UI TRÒN + MENU
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
