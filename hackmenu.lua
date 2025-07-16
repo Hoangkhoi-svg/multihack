@@ -1,6 +1,5 @@
---// ✅ KOIHXZ HUB - UI NÚT TRÒN MỞ MENU GIỮA MÀN HÌNH
--- Phiên bản rebuild bởi ChatGPT theo yêu cầu UI mới
--- Gồm: Walk, Jump, Hitbox Toggle, ClickTP, ESP, Auto Hitbox, Chat Exec, AntiAFK
+--// ✅ KOIHXZ HUB - UI NÚT TRÒN MỞ MENU GIỮA MÀN HÌNH (ĐÃ FIX)
+-- Gồm: Walk, Jump, Hitbox Toggle, ClickTP, ESP, Auto Hitbox, Chat Exec
 
 --// ✅ CONFIG
 _G.HeadSize = 50
@@ -104,7 +103,7 @@ for _, p in pairs(Players:GetPlayers()) do
 end
 Players.PlayerAdded:Connect(createESP)
 
---// ✅ UI CHỦ ĐẠO - NÚT TRÒN BẬT MENU
+--// ✅ UI TRÒN + MENU
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "KOIHXZ_MAIN"
 gui.ResetOnSpawn = false
@@ -114,7 +113,7 @@ mainBtn.Name = "MainToggle"
 mainBtn.Size = UDim2.new(0, 60, 0, 60)
 mainBtn.Position = UDim2.new(0, 20, 0.8, 0)
 mainBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-mainBtn.Image = "rbxassetid://160408646" -- Icon nút
+mainBtn.Image = "rbxassetid://160408646"
 mainBtn.AutoButtonColor = true
 
 local menu = Instance.new("Frame", gui)
@@ -128,46 +127,90 @@ mainBtn.MouseButton1Click:Connect(function()
     menu.Visible = not menu.Visible
 end)
 
-local function createButton(name, yPos, callback)
-    local btn = Instance.new("TextButton", menu)
-    btn.Size = UDim2.new(1, -20, 0, 40)
-    btn.Position = UDim2.new(0, 10, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Font = Enum.Font.GothamBold
-    btn.Text = name
-    btn.TextScaled = true
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(callback)
-    return btn
-end
-
--- WALK
-createButton("🚶 WalkSpeed", 10, function()
-    local input = tonumber(game:GetService("Players").LocalPlayer:PromptInput("Điền tốc độ đi (VD: 16):"))
-    if input then SavedSpeed = input end
+-- Walk Input
+local walkBox = Instance.new("TextBox", menu)
+walkBox.PlaceholderText = "WalkSpeed (16)"
+walkBox.Size = UDim2.new(1, -20, 0, 40)
+walkBox.Position = UDim2.new(0, 10, 0, 10)
+walkBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+walkBox.TextColor3 = Color3.new(1,1,1)
+walkBox.Font = Enum.Font.Gotham
+walkBox.TextScaled = true
+walkBox.ClearTextOnFocus = false
+Instance.new("UICorner", walkBox)
+walkBox.FocusLost:Connect(function()
+    local val = tonumber(walkBox.Text)
+    if val then SavedSpeed = val end
 end)
 
--- JUMP
-createButton("🪂 JumpPower", 60, function()
-    local input = tonumber(game:GetService("Players").LocalPlayer:PromptInput("Điền lực nhảy (VD: 50):"))
-    if input then SavedJump = input end
+-- Jump Input
+local jumpBox = Instance.new("TextBox", menu)
+jumpBox.PlaceholderText = "JumpPower (50)"
+jumpBox.Size = UDim2.new(1, -20, 0, 40)
+jumpBox.Position = UDim2.new(0, 10, 0, 60)
+jumpBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
+jumpBox.TextColor3 = Color3.new(1,1,1)
+jumpBox.Font = Enum.Font.Gotham
+jumpBox.TextScaled = true
+jumpBox.ClearTextOnFocus = false
+Instance.new("UICorner", jumpBox)
+jumpBox.FocusLost:Connect(function()
+    local val = tonumber(jumpBox.Text)
+    if val then SavedJump = val end
 end)
 
 -- HITBOX TOGGLE
-createButton("🎯 Toggle Hitbox", 110, function()
+local hitboxToggle = Instance.new("TextButton", menu)
+hitboxToggle.Size = UDim2.new(1, -20, 0, 40)
+hitboxToggle.Position = UDim2.new(0, 10, 0, 110)
+hitboxToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+hitboxToggle.TextColor3 = Color3.new(1,1,1)
+hitboxToggle.Font = Enum.Font.GothamBold
+hitboxToggle.TextScaled = true
+hitboxToggle.Text = "🎯 Hitbox: ON"
+Instance.new("UICorner", hitboxToggle)
+
+hitboxToggle.MouseButton1Click:Connect(function()
     _G.Disabled = not _G.Disabled
-    SafeChat("🎯 Hitbox " .. (_G.Disabled and "BẬT" or "TẮT"))
+    hitboxToggle.Text = _G.Disabled and "🎯 Hitbox: ON" or "🎯 Hitbox: OFF"
+    hitboxToggle.BackgroundColor3 = _G.Disabled and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(80, 80, 80)
+    if not _G.Disabled then
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= player then
+                pcall(function()
+                    local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        hrp.Size = Vector3.new(2, 2, 1)
+                        hrp.Transparency = 1
+                        hrp.BrickColor = BrickColor.new("Medium stone grey")
+                        hrp.Material = Enum.Material.Plastic
+                        hrp.CanCollide = true
+                    end
+                end)
+            end
+        end
+    end
 end)
 
--- CLICK TP
+-- CLICK TP TOGGLE
 local teleportEnabled = false
-createButton("🛸 Click Teleport", 160, function()
+local tpToggle = Instance.new("TextButton", menu)
+tpToggle.Size = UDim2.new(1, -20, 0, 40)
+tpToggle.Position = UDim2.new(0, 10, 0, 160)
+tpToggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
+tpToggle.TextColor3 = Color3.new(1,1,1)
+tpToggle.Font = Enum.Font.GothamBold
+tpToggle.TextScaled = true
+tpToggle.Text = "🛸 Click TP: OFF"
+Instance.new("UICorner", tpToggle)
+
+tpToggle.MouseButton1Click:Connect(function()
     teleportEnabled = not teleportEnabled
-    SafeChat("🛸 Click TP " .. (teleportEnabled and "BẬT" or "TẮT"))
+    tpToggle.Text = teleportEnabled and "🛸 Click TP: ON" or "🛸 Click TP: OFF"
+    tpToggle.BackgroundColor3 = teleportEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 60)
 end)
 
--- TP hỗ trợ
+-- TP support (Mobile + PC)
 local mouse = player:GetMouse()
 UIS.InputBegan:Connect(function(i, g)
     if g or not teleportEnabled then return end
