@@ -181,3 +181,11 @@ UIS.TouchTap:Connect(function(_,processed)
         if hrp then hrp.CFrame = CFrame.new(pos+Vector3.new(0,3,0)) end
     end
 end)
+--// 🚨 CẢNH BÁO NGƯỜI MỚI VÀO GAME
+game.Players.PlayerAdded:Connect(function(plr)
+	game:GetService("StarterGui"):SetCore("SendNotification", {
+		Title = "🆕 Người mới vào",
+		Text = plr.Name .. " vừa vào game!",
+		Duration = 5
+	})
+end)
