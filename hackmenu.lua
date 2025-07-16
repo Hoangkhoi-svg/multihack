@@ -251,37 +251,3 @@ UIS.InputBegan:Connect(function(i, g)
     end
 end)
 
--// new
-for _, p in pairs(Players:GetPlayers()) do
-    if p ~= player then
-        p.CharacterAdded:Connect(function(char)
-            repeat wait() until char:FindFirstChild("Humanoid")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            hum.Died:Connect(function()
-                SafeChat("💀 " .. p.Name .. " đã gục!")
-                StarterGui:SetCore("SendNotification", {
-                    Title = "⚔️ Người chơi chết!",
-                    Text = p.Name .. " đã bị hạ!",
-                    Duration = 4
-                })
-            end)
-        end)
-    end
-end
-
-Players.PlayerAdded:Connect(function(p)
-    if p ~= player then
-        p.CharacterAdded:Connect(function(char)
-            repeat wait() until char:FindFirstChild("Humanoid")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            hum.Died:Connect(function()
-                SafeChat("💀 " .. p.Name .. " đã gục!")
-                StarterGui:SetCore("SendNotification", {
-                    Title = "⚔️ Người chơi chết!",
-                    Text = p.Name .. " đã bị hạ!",
-                    Duration = 4
-                })
-            end)
-        end)
-    end
-end)
