@@ -238,12 +238,28 @@ UIS.TouchTap:Connect(function(_, g)
     end
 end)
 
-Players.PlayerAdded:Connect(function(plr)
-    SafeChat("📥 Người chơi mới vừa vào: " .. plr.Name)
-    
-    StarterGui:SetCore("SendNotification", {
-        Title = "📥 NGƯỜI CHƠI MỚI",
-        Text = plr.Name .. " đã vào server!",
-        Duration = 5
-    })
+local function onPlayerDied(victim)
+    if not victim or not victim.Character then return end
+    local humanoid = victim.Character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+
+    humanoid.Died:Connect(function()
+        local tag = humanoid:FindFirstChild("creator")
+        if tag and tag.Value == player then
+            SafeChat("💀 Bạn đã hạ gục: " .. victim.Name)
+            StarterGui:SetCore("SendNotification", {
+                Title = "💀 KILL!",
+                Text = "Bạn đã tiễn " .. victim.Name .. " lên bảng!",
+                Duration = 4
+            })
+        end
+    end)
+end
+
+-- Theo dõi tất cả người chơi
+for _, p in pairs(Players:GetPlayers()) do
+    if p ~= player then onPlayerDied(p) end
+end
+Players.PlayerAdded:Connect(function(p)
+    if p ~= player then onPlayerDied(p) end
 end)
