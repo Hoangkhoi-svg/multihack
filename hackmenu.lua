@@ -84,54 +84,30 @@ Players.PlayerAdded:Connect(function(p)
     end)
 end)
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
 --// ✅ ESP TÊN
-local function createESP(target)
-    if target == player then return end
-
-    local function attachESP(char)
-        local head = char:WaitForChild("Head", 5)
-        if head and not head:FindFirstChild("KOIHXZ_ESP") then
-            local espGui = Instance.new("BillboardGui")
-            espGui.Name = "KOIHXZ_ESP"
-            espGui.Adornee = head
-            espGui.Size = UDim2.new(0, 60, 0, 20)
-            espGui.AlwaysOnTop = true
-            espGui.Parent = head
-
-            local text = Instance.new("TextLabel", espGui)
-            text.Size = UDim2.new(1, 0, 1, 0)
-            text.BackgroundTransparency = 1
-            text.Text = target.Name
-            text.TextColor3 = Color3.fromRGB(255, 255, 255)
-            text.TextStrokeTransparency = 0
-            text.TextScaled = true
-            text.Font = Enum.Font.GothamBold
-        end
-    end
-
-    -- Nếu đã có nhân vật
-    if target.Character then
-        attachESP(target.Character)
-    end
-
-    -- Khi có nhân vật mới
-    target.CharacterAdded:Connect(function(char)
-        attachESP(char)
+function createESP(p)
+    if p == player then return end
+    p.CharacterAdded:Connect(function(char)
+        repeat wait() until char:FindFirstChild("Head")
+        local b = Instance.new("BillboardGui", char.Head)
+        b.Name = "KOIHXZ_ESP"
+        b.Size = UDim2.new(0,60,0,20)
+        b.Adornee = char.Head
+        b.AlwaysOnTop = true
+        local t = Instance.new("TextLabel", b)
+        t.Size = UDim2.new(1,0,1,0)
+        t.BackgroundTransparency = 1
+        t.Text = p.Name
+        t.TextColor3 = Color3.new(1,1,1)
+        t.TextStrokeTransparency = 0
+        t.TextScaled = true
+        t.Font = Enum.Font.GothamBold
     end)
 end
-
--- Áp dụng cho toàn bộ người chơi
 for _, p in pairs(Players:GetPlayers()) do
-    createESP(p)
+    if p ~= player then createESP(p) end
 end
-
--- Cho người mới vào
-Players.PlayerAdded:Connect(function(p)
-    createESP(p)
-end)
+Players.PlayerAdded:Connect(createESP)
 
 --// ✅ UI TRÒN + MENU
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
@@ -250,6 +226,15 @@ UIS.InputBegan:Connect(function(i, g)
             local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
             if hrp then hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0)) end
         end
+    end
+end)
+
+UIS.TouchTap:Connect(function(_, g)
+    if g or not teleportEnabled then return end
+    local pos = mouse.Hit and mouse.Hit.Position
+    if pos then
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0)) end
     end
 end)
 
