@@ -85,6 +85,8 @@ Players.PlayerAdded:Connect(function(p)
 end)
 
 --// ✅ ESP TÊN - HIỆN NGAY LẬP TỨC KHI EXEC
+_G.ESPEnabled = true
+
 function attachESP(char, name)
 	local head = char:FindFirstChild("Head")
 	if head and not head:FindFirstChild("KOIHXZ_ESP") then
@@ -93,6 +95,7 @@ function attachESP(char, name)
 		b.Size = UDim2.new(0,60,0,20)
 		b.Adornee = head
 		b.AlwaysOnTop = true
+		b.Enabled = _G.ESPEnabled -- ✅ Áp dụng theo trạng thái bật/tắt
 
 		local t = Instance.new("TextLabel", b)
 		t.Size = UDim2.new(1,0,1,0)
@@ -217,6 +220,34 @@ hitboxToggle.MouseButton1Click:Connect(function()
             end
         end
     end
+end)
+
+-- ESP TOGGLE
+local espToggle = Instance.new("TextButton", menu)
+espToggle.Size = UDim2.new(1, -20, 0, 40)
+espToggle.Position = UDim2.new(0, 10, 0, 210)
+espToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+espToggle.TextColor3 = Color3.new(1,1,1)
+espToggle.Font = Enum.Font.GothamBold
+espToggle.TextScaled = true
+espToggle.Text = "🧠 ESP: ON"
+Instance.new("UICorner", espToggle)
+
+espToggle.MouseButton1Click:Connect(function()
+	_G.ESPEnabled = not _G.ESPEnabled
+	espToggle.Text = _G.ESPEnabled and "🧠 ESP: ON" or "🧠 ESP: OFF"
+	espToggle.BackgroundColor3 = _G.ESPEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(80, 80, 80)
+
+	-- Tắt/Bật BillboardGui
+	for _, p in pairs(Players:GetPlayers()) do
+		if p.Character and p.Character:FindFirstChild("Head") then
+			local head = p.Character.Head
+			local esp = head:FindFirstChild("KOIHXZ_ESP")
+			if esp then
+				esp.Enabled = _G.ESPEnabled
+			end
+		end
+	end
 end)
 
 -- CLICK TP TOGGLE
