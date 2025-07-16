@@ -5,16 +5,20 @@ local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
---// ✅ UI SETUP
+-- GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "Hihi_UI"
 gui.ResetOnSpawn = false
 
-local menu = Instance.new("Frame", gui)
+-- MENU CHÍNH
+local menu = Instance.new("Frame")
 menu.Size = UDim2.new(0, 200, 0, 160)
 menu.Position = UDim2.new(0, 20, 0.7, 0)
 menu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 menu.BorderSizePixel = 0
+menu.Active = true
+menu.Draggable = true -- ✅ CHO DRAG MOBILE + PC
+menu.Parent = gui
 Instance.new("UICorner", menu)
 
 local title = Instance.new("TextLabel", menu)
@@ -25,30 +29,7 @@ title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true
 
---// ✅ DRAGGABLE MENU FUNCTION (Mobile & PC)
-local dragging, dragStart, startPos
-menu.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = true
-		dragStart = input.Position
-		startPos = menu.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-	end
-end)
-
-menu.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-		local delta = input.Position - dragStart
-		menu.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-end)
-
---// ✅ BUTTONS
+-- NÚT
 local savedPos = nil
 local tpEnabled = false
 
@@ -82,7 +63,7 @@ tpBtn.Font = Enum.Font.GothamBold
 tpBtn.TextScaled = true
 Instance.new("UICorner", tpBtn)
 
---// ✅ FUNCTIONALITY
+-- FUNCTION
 saveBtn.MouseButton1Click:Connect(function()
 	local char = player.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
@@ -116,7 +97,7 @@ tpBtn.MouseButton1Click:Connect(function()
 	tpBtn.BackgroundColor3 = tpEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(100, 100, 100)
 end)
 
--- Click TP (Mobile only)
+-- CHẠM MÀN HÌNH (MOBILE TP)
 UIS.TouchTap:Connect(function(_, isProcessed)
 	if tpEnabled and not isProcessed and mouse.Hit then
 		local pos = mouse.Hit.Position
