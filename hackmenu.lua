@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 --// ✅ CHAT KHI EXEC
@@ -18,7 +19,7 @@ local function SafeChat(msg)
         else
             StarterGui:SetCore("ChatMakeSystemMessage", {
                 Text = msg,
-                Color = Color3.fromRGB(255, 255, 0),
+                Color = Color3.new(1,1,0),
                 Font = Enum.Font.SourceSansBold,
                 FontSize = Enum.FontSize.Size24
             })
@@ -28,221 +29,155 @@ end
 SafeChat("👑 Nhà Vua Đã Tới | The King Has Arrived 👑")
 
 --// ✅ THÔNG BÁO EXEC
-StarterGui:SetCore("SendNotification", {
-    Title = "🚀 KOIHXZ HUB ĐANG KHỞI ĐỘNG...",
-    Text = "Chuẩn bị quét toàn bộ server",
-    Duration = 3
-})
-
+StarterGui:SetCore("SendNotification", {Title="🚀 KOIHXZ HUB ĐANG KHỞI ĐỘNG...", Text="Chuẩn bị quét toàn bộ server", Duration=3})
 task.delay(3.2, function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "🛡️ KOIHXZ HUB THỐNG TRỊ SERVER",
-        Text = "Hitbox auto toàn server. Người mới cũng dính.",
-        Icon = "rbxassetid://7489181066",
-        Duration = 6
-    })
+    StarterGui:SetCore("SendNotification", {Title="🛡️ KOIHXZ HUB THỐNG TRỊ SERVER", Text="Hitbox auto toàn server. Người mới cũng dính.", Icon="rbxassetid://7489181066", Duration=6})
 end)
-
 task.delay(6.5, function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "⭐ TUỲ CHỌN NÂNG CẤP ⭐",
-        Text = "Gõ /vip để mở chế độ PRO: ESP, Silent, Antiban,...",
-        Duration = 8
-    })
+    StarterGui:SetCore("SendNotification", {Title="⭐ TUỲ CHỌN NÂNG CẤP ⭐", Text="Gõ /vip để mở chế độ PRO: ESP, Silent, Antiban,...", Duration=8})
 end)
 
---// ✅ TĂNG HITBOX TOÀN SERVER + GIỮ TỐC ĐỘ + NHẢY
+--// ✅ TĂNG HITBOX + GIỮ TỐC ĐỘ + NHẢY
 RunService.RenderStepped:Connect(function()
     if _G.Disabled then
         for _, v in pairs(Players:GetPlayers()) do
-            if v ~= Players.LocalPlayer then
+            if v ~= player then
                 pcall(function()
                     local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                        hrp.Transparency = 0.7
-                        hrp.BrickColor = BrickColor.new("Really blue")
-                        hrp.Material = "Neon"
-                        hrp.CanCollide = false
+                        hrp.Size = Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
+                        hrp.Transparency,hrp.BrickColor,hrp.Material,hrp.CanCollide = 0.7,BrickColor.new("Really blue"),"Neon",false
                     end
                 end)
             end
         end
     end
-
-    -- Giữ nguyên tốc độ và nhảy
-    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        if humanoid.WalkSpeed ~= SavedSpeed then
-            humanoid.WalkSpeed = SavedSpeed
-        end
-        if humanoid.JumpPower ~= SavedJump then
-            humanoid.JumpPower = SavedJump
-        end
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        if hum.WalkSpeed ~= SavedSpeed then hum.WalkSpeed = SavedSpeed end
+        if hum.JumpPower ~= SavedJump then hum.JumpPower = SavedJump end
     end
 end)
 
---// ✅ ÁP DỤNG HITBOX CHO NGƯỜI MỚI VÀO
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        repeat wait() until player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+--// ✅ ÁP DỤNG HITBOX CHO NGƯỜI MỚI
+Players.PlayerAdded:Connect(function(p)
+    p.CharacterAdded:Connect(function()
+        repeat wait() until p.Character and p.Character:FindFirstChild("HumanoidRootPart")
         wait(1)
         if _G.Disabled then
-            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
             if hrp then
                 pcall(function()
-                    hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
-                    hrp.Transparency = 0.7
-                    hrp.BrickColor = BrickColor.new("Really blue")
-                    hrp.Material = "Neon"
-                    hrp.CanCollide = false
+                    hrp.Size=Vector3.new(_G.HeadSize,_G.HeadSize,_G.HeadSize)
+                    hrp.Transparency,hrp.BrickColor,hrp.Material,hrp.CanCollide = 0.7,BrickColor.new("Really blue"),"Neon",false
                 end)
             end
         end
     end)
 end)
 
---// ✅ ESP – HIỆN TÊN THU NHỎ TRÊN ĐẦU
-function createESP(player)
-    if player == Players.LocalPlayer then return end
-    player.CharacterAdded:Connect(function(char)
+--// ✅ ESP – THU NHỎ
+function createESP(p)
+    if p==player then return end
+    p.CharacterAdded:Connect(function(char)
         repeat wait() until char:FindFirstChild("Head")
-        local billboard = Instance.new("BillboardGui", char.Head)
-        billboard.Name = "KOIHXZ_ESP"
-        billboard.Size = UDim2.new(0, 60, 0, 20)
-        billboard.Adornee = char.Head
-        billboard.AlwaysOnTop = true
-
-        local text = Instance.new("TextLabel", billboard)
-        text.Size = UDim2.new(1, 0, 1, 0)
-        text.BackgroundTransparency = 1
-        text.Text = player.Name
-        text.TextColor3 = Color3.fromRGB(255, 255, 255)
-        text.TextStrokeTransparency = 0
-        text.TextScaled = true
-        text.Font = Enum.Font.GothamBold
+        local b=Instance.new("BillboardGui",char.Head)
+        b.Name="KOIHXZ_ESP"; b.Size=UDim2.new(0,60,0,20); b.Adornee=char.Head; b.AlwaysOnTop=true
+        local t=Instance.new("TextLabel",b)
+        t.Size=UDim2.new(1,0,1,0); t.BackgroundTransparency=1; t.Text=p.Name; t.TextColor3=Color3.new(1,1,1)
+        t.TextStrokeTransparency=0; t.TextScaled=true; t.Font=Enum.Font.GothamBold
     end)
 end
-for _, p in pairs(Players:GetPlayers()) do
-    if p ~= Players.LocalPlayer then
-        createESP(p)
-    end
-end
+for _, p in ipairs(Players:GetPlayers()) do if p~=player then createESP(p) end end
 Players.PlayerAdded:Connect(createESP)
 
---// ✅ UI GỌN GÀNG – KOIHXZ CONTROL 👑
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-screenGui.Name = "KOIHXZ_UI"
-screenGui.ResetOnSpawn = false
-
-local mainFrame = Instance.new("TextButton")
-mainFrame.Size = UDim2.new(0, 180, 0, 30)
-mainFrame.Position = UDim2.new(0, 20, 0, 140)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-mainFrame.Text = "👑 KOIHXZ CONTROL 👑"
-mainFrame.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainFrame.Font = Enum.Font.GothamBold
-mainFrame.TextScaled = true
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = screenGui
-
-local expandFrame = Instance.new("Frame", mainFrame)
-expandFrame.Size = UDim2.new(0, 180, 0, 100)
-expandFrame.Position = UDim2.new(0, 0, 1, 0)
-expandFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-expandFrame.Visible = false
-
-local toggle = false
-mainFrame.MouseButton1Click:Connect(function()
-    toggle = not toggle
-    expandFrame.Visible = toggle
-end)
-
--- WalkSpeed Box
-local wsBox = Instance.new("TextBox", expandFrame)
-wsBox.PlaceholderText = "WalkSpeed (default 16)"
-wsBox.Size = UDim2.new(1, -10, 0, 30)
-wsBox.Position = UDim2.new(0, 5, 0, 5)
-wsBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-wsBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-wsBox.ClearTextOnFocus = false
-wsBox.Font = Enum.Font.Gotham
-wsBox.TextScaled = true
-wsBox.FocusLost:Connect(function()
-	local val = tonumber(wsBox.Text)
-	if val then
-		SavedSpeed = val
-		player.Character.Humanoid.WalkSpeed = val
-	end
-end)
-
--- JumpPower Box
-local jpBox = Instance.new("TextBox", expandFrame)
-jpBox.PlaceholderText = "JumpPower (default 50)"
-jpBox.Size = UDim2.new(1, -10, 0, 30)
-jpBox.Position = UDim2.new(0, 5, 0, 40)
-jpBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-jpBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-jpBox.ClearTextOnFocus = false
-jpBox.Font = Enum.Font.Gotham
-jpBox.TextScaled = true
-jpBox.FocusLost:Connect(function()
-	local val = tonumber(jpBox.Text)
-	if val then
-		SavedJump = val
-		player.Character.Humanoid.JumpPower = val
-	end
-end)
---// ✅ CLICK TELEPORT CHO CẢ MOBILE & PC
-local teleportEnabled = false
-local player = game.Players.LocalPlayer
-local mouse = player:GetMouse()
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-
--- Nút bật tắt TP
-local tpButton = Instance.new("TextButton")
-tpButton.Name = "TeleportToggle"
-tpButton.Size = UDim2.new(0, 140, 0, 35)
-tpButton.Position = UDim2.new(0, 20, 0, 100)
-tpButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-tpButton.Text = "🛸 INVITE (Click TP: OFF)"
-tpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-tpButton.Font = Enum.Font.GothamBold
-tpButton.TextScaled = true
-tpButton.Parent = player:WaitForChild("PlayerGui"):WaitForChild("KOIHXZ_UI")
-
-tpButton.MouseButton1Click:Connect(function()
-    teleportEnabled = not teleportEnabled
-    tpButton.Text = teleportEnabled and "🛸 INVITE (Click TP: ON)" or "🛸 INVITE (Click TP: OFF)"
-    tpButton.BackgroundColor3 = teleportEnabled and Color3.fromRGB(30, 150, 80) or Color3.fromRGB(60, 60, 60)
-end)
-
--- ✅ Hỗ trợ cả PC (chuột) và Mobile (chạm)
-local function teleportToPosition(pos)
-    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.CFrame = CFrame.new(pos + Vector3.new(0, 3, 0))
-    end
+--// ✅ UI – DARK FUTURISTIC
+local gui = player:WaitForChild("PlayerGui"):FindFirstChild("KOIHXZ_UI")
+if not gui then
+    gui = Instance.new("ScreenGui", player.PlayerGui)
+    gui.Name = "KOIHXZ_UI"
+    gui.ResetOnSpawn = false
 end
 
--- PC: click chuột
-UIS.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed or not teleportEnabled then return end
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        local pos = mouse.Hit and mouse.Hit.Position
+local mainBtn = gui:FindFirstChild("MainBtn") or Instance.new("TextButton")
+if not mainBtn.Parent then
+    mainBtn.Name="MainBtn"
+    mainBtn.Size=UDim2.new(0,180,0,40); mainBtn.Position=UDim2.new(0,20,0,160)
+    mainBtn.BackgroundColor3=Color3.fromRGB(20,20,20); mainBtn.BorderColor3=Color3.fromRGB(0,255,200)
+    mainBtn.Text="🧬 KOIHXZ HUB ⚔️"; mainBtn.TextColor3=Color3.fromRGB(0,255,200)
+    mainBtn.Font=Enum.Font.GothamBlack; mainBtn.TextScaled=true; mainBtn.Active=true; mainBtn.Draggable=true
+    Instance.new("UICorner",mainBtn).CornerRadius=UDim.new(0,8)
+    mainBtn.Parent=gui
+end
+
+local panel = mainBtn:FindFirstChild("Panel") or Instance.new("Frame")
+if not panel.Parent then
+    panel.Name="Panel"; panel.Size=UDim2.new(0,180,0,100); panel.Position=UDim2.new(0,0,1,0)
+    panel.BackgroundColor3=Color3.fromRGB(30,30,30); panel.BorderColor3=Color3.fromRGB(0,255,200)
+    Instance.new("UICorner",panel).CornerRadius=UDim.new(0,8)
+    panel.Visible=false; panel.Parent=mainBtn
+end
+
+local open=false
+mainBtn.MouseButton1Click:Connect(function()
+    open = not open
+    panel.Visible = open
+end)
+
+-- WalkSpeed
+local wsBox = panel:FindFirstChild("WS") or Instance.new("TextBox",panel)
+wsBox.Name="WS"; wsBox.PlaceholderText="🚶 WalkSpeed (16)"
+wsBox.Size=UDim2.new(1,-10,0,30); wsBox.Position=UDim2.new(0,5,0,5)
+wsBox.BackgroundColor3=Color3.fromRGB(50,50,50); wsBox.TextColor3=Color3.new(1,1,1)
+wsBox.ClearTextOnFocus=false; wsBox.Font=Enum.Font.Gotham; wsBox.TextScaled=true
+wsBox.FocusLost:Connect(function()
+    local v=tonumber(wsBox.Text)
+    if v then SavedSpeed=v end
+end)
+
+-- JumpPower
+local jpBox = panel:FindFirstChild("JP") or Instance.new("TextBox",panel)
+jpBox.Name="JP"; jpBox.PlaceholderText="🪂 JumpPower (50)"
+jpBox.Size=UDim2.new(1,-10,0,30); jpBox.Position=UDim2.new(0,5,0,40)
+jpBox.BackgroundColor3=Color3.fromRGB(50,50,50); jpBox.TextColor3=Color3.new(1,1,1)
+jpBox.ClearTextOnFocus=false; jpBox.Font=Enum.Font.Gotham; jpBox.TextScaled=true
+jpBox.FocusLost:Connect(function()
+    local v=tonumber(jpBox.Text)
+    if v then SavedJump=v end
+end)
+
+-- Teleport Button
+local tpBtn = gui:FindFirstChild("TPButton") or Instance.new("TextButton",gui)
+tpBtn.Name="TPButton"; tpBtn.Size=UDim2.new(0,160,0,35); tpBtn.Position=UDim2.new(0,20,0,110)
+tpBtn.BackgroundColor3=Color3.fromRGB(45,45,45); tpBtn.TextColor3=Color3.fromRGB(200,255,200)
+tpBtn.Font=Enum.Font.GothamBlack; tpBtn.TextScaled=true
+Instance.new("UICorner",tpBtn).CornerRadius=UDim.new(0,8)
+tpBtn.Text="🛸 INVITE (Click TP: OFF)"
+
+local teleportEnabled=false
+tpBtn.MouseButton1Click:Connect(function()
+    teleportEnabled = not teleportEnabled
+    tpBtn.Text = teleportEnabled and "🛸 INVITE (Click TP: ON)" or "🛸 INVITE (Click TP: OFF)"
+    tpBtn.BackgroundColor3 = teleportEnabled and Color3.fromRGB(0,170,100) or Color3.fromRGB(45,45,45)
+end)
+
+local mouse = player:GetMouse()
+UIS.InputBegan:Connect(function(i, gp)
+    if gp or not teleportEnabled then return end
+    if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        local pos=mouse.Hit and mouse.Hit.Position
         if pos then
-            teleportToPosition(pos)
+            local hrp=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then hrp.CFrame = CFrame.new(pos+Vector3.new(0,3,0)) end
         end
     end
 end)
 
--- Mobile: chạm màn hình
-UIS.TouchTap:Connect(function(touchPositions, isProcessed)
-    if not teleportEnabled or isProcessed then return end
-    local pos = mouse.Hit and mouse.Hit.Position
+UIS.TouchTap:Connect(function(_,processed)
+    if processed or not teleportEnabled then return end
+    local pos=mouse.Hit and mouse.Hit.Position
     if pos then
-        teleportToPosition(pos)
+        local hrp=player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then hrp.CFrame = CFrame.new(pos+Vector3.new(0,3,0)) end
     end
 end)
