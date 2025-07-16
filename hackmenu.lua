@@ -231,3 +231,13 @@ UIS.TouchTap:Connect(function(_, g)
         if hrp then hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0)) end
     end
 end)
+
+Players.PlayerAdded:Connect(function(plr)
+    SafeChat("📥 Người chơi mới vừa vào: " .. plr.Name)
+    
+    StarterGui:SetCore("SendNotification", {
+        Title = "📥 NGƯỜI CHƠI MỚI",
+        Text = plr.Name .. " đã vào server!",
+        Duration = 5
+    })
+end)
