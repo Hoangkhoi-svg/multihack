@@ -30,8 +30,14 @@ local function SafeChat(msg)
 end
 SafeChat("👑 Nhà Vua Đã Tới | The King Has Arrived 👑")
 
---// ✅ NOTIFY EXEC
-StarterGui:SetCore("SendNotification", {Title="🚀 KOIHXZ HUB", Text="Script đã kích hoạt!", Duration=3})
+--// ✅ THÔNG BÁO EXEC
+StarterGui:SetCore("SendNotification", {Title="🚀 KOIHXZ HUB ĐANG KHỞI ĐỘNG...", Text="Chuẩn bị quét toàn bộ server", Duration=3})
+task.delay(3.2, function()
+    StarterGui:SetCore("SendNotification", {Title="🛡️ KOIHXZ HUB THỐNG TRỊ SERVER", Text="Hitbox auto toàn server. Người mới cũng dính.", Icon="rbxassetid://7489181066", Duration=6})
+end)
+task.delay(6.5, function()
+    StarterGui:SetCore("SendNotification", {Title="⭐ TUỲ CHỌN NÂNG CẤP ⭐", Text="Gõ /vip để mở chế độ PRO: ESP, Silent, Antiban,...", Duration=8})
+end)
 
 --// ✅ AUTO HITBOX + GIỮ SPEED/JUMP
 RunService.RenderStepped:Connect(function()
