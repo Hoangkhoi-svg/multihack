@@ -84,9 +84,12 @@ Players.PlayerAdded:Connect(function(p)
     end)
 end)
 
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
 --// ✅ ESP TÊN
-local function createESP(player)
-    if player == Players.LocalPlayer then return end
+local function createESP(target)
+    if target == player then return end
 
     local function attachESP(char)
         local head = char:WaitForChild("Head", 5)
@@ -101,7 +104,7 @@ local function createESP(player)
             local text = Instance.new("TextLabel", espGui)
             text.Size = UDim2.new(1, 0, 1, 0)
             text.BackgroundTransparency = 1
-            text.Text = player.Name
+            text.Text = target.Name
             text.TextColor3 = Color3.fromRGB(255, 255, 255)
             text.TextStrokeTransparency = 0
             text.TextScaled = true
@@ -110,13 +113,12 @@ local function createESP(player)
     end
 
     -- Nếu đã có nhân vật
-    if player.Character then
-        attachESP(player.Character)
+    if target.Character then
+        attachESP(target.Character)
     end
 
     -- Khi có nhân vật mới
-    player.CharacterAdded:Connect(function(char)
-        char:WaitForChild("Head", 5)
+    target.CharacterAdded:Connect(function(char)
         attachESP(char)
     end)
 end
