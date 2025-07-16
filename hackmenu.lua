@@ -86,39 +86,48 @@ end)
 
 --// ✅ ESP TÊN
 function createESP(p)
-    if p == player then return end
-    p.CharacterAdded:Connect(function(char)
-        repeat wait() until char:FindFirstChild("Head")
-        local head = char:FindFirstChild("Head")
-        if head and not head:FindFirstChild("KOIHXZ_ESP") then
-            local b = Instance.new("BillboardGui", head)
-            b.Name = "KOIHXZ_ESP"
-            b.Size = UDim2.new(0,60,0,20)
-            b.Adornee = head
-            b.AlwaysOnTop = true
+	if p == player then return end
 
-            local t = Instance.new("TextLabel", b)
-            t.Size = UDim2.new(1,0,1,0)
-            t.BackgroundTransparency = 1
-            t.Text = p.Name
-            t.TextColor3 = Color3.new(1,1,1)
-            t.TextStrokeTransparency = 0
-            t.TextScaled = true
-            t.Font = Enum.Font.GothamBold
-        end
-    end)
+	local function attachESP(char)
+		repeat wait() until char:FindFirstChild("Head")
+		local head = char:FindFirstChild("Head")
+		if head and not head:FindFirstChild("KOIHXZ_ESP") then
+			local b = Instance.new("BillboardGui", head)
+			b.Name = "KOIHXZ_ESP"
+			b.Size = UDim2.new(0,60,0,20)
+			b.Adornee = head
+			b.AlwaysOnTop = true
+
+			local t = Instance.new("TextLabel", b)
+			t.Size = UDim2.new(1,0,1,0)
+			t.BackgroundTransparency = 1
+			t.Text = p.Name
+			t.TextColor3 = Color3.new(1,1,1)
+			t.TextStrokeTransparency = 0
+			t.TextScaled = true
+			t.Font = Enum.Font.GothamBold
+		end
+	end
+
+	-- Nếu đã có nhân vật
+	if p.Character then
+		attachESP(p.Character)
+	end
+
+	-- Khi nhân vật mới spawn
+	p.CharacterAdded:Connect(function(char)
+		attachESP(char)
+	end)
 end
 
--- Áp dụng cho người chơi hiện có
+-- Gắn ESP cho tất cả người chơi hiện có
 for _, p in pairs(Players:GetPlayers()) do
-    if p ~= player then
-        createESP(p)
-    end
+	createESP(p)
 end
 
--- Áp dụng cho người mới
+-- Gắn cho người chơi mới
 Players.PlayerAdded:Connect(function(p)
-    createESP(p)
+	createESP(p)
 end)
 
 --// ✅ UI TRÒN + MENU
