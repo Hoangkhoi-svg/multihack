@@ -219,25 +219,34 @@ local espToggleUI = MainTab:CreateToggle({
     end
 })
 
--- UI phụ bật/tắt Click TP
+--// ✅ TẠO UI PHỤ CHO CLICK TP
+
 local teleportEnabled = false
 
 MainTab:CreateButton({
     Name = "Click TP",
     Callback = function()
-        local subGui = library:CreateWindow({
-            Name = "Click TP Toggle",
-            HidePremium = true,
+        local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield/library.lua"))()
+
+        local subWindow = Rayfield:CreateWindow({
+            Name = "⚡ CLICK TELEPORT MENU",
+            LoadingTitle = "KOIHXZ HUB",
+            LoadingSubtitle = "by Khôi",
             ConfigurationSaving = {
                 Enabled = false
-            }
+            },
+            Discord = {
+                Enabled = false
+            },
+            KeySystem = false
         })
 
-        subGui:CreateToggle({
-            Name = "Bật/Tắt Click TP",
+        subWindow:CreateToggle({
+            Name = "🛸 Bật/Tắt Click TP",
             CurrentValue = teleportEnabled,
-            Callback = function(val)
-                teleportEnabled = val
+            Flag = "ClickTPSubToggle",
+            Callback = function(value)
+                teleportEnabled = value
             end
         })
     end
