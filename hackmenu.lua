@@ -218,16 +218,28 @@ local espToggleUI = MainTab:CreateToggle({
         end
     end
 })
--- Phần Teleport
-MainTab:CreateSection("Teleport")
--- Click TP Toggle
+
+-- UI phụ bật/tắt Click TP
 local teleportEnabled = false
-local tpToggleUI = MainTab:CreateToggle({
+
+MainTab:CreateButton({
     Name = "Click TP",
-    CurrentValue = teleportEnabled,
-    Flag = "ClickTP",
-    Callback = function(Value)
-        teleportEnabled = Value
+    Callback = function()
+        local subGui = library:CreateWindow({
+            Name = "Click TP Toggle",
+            HidePremium = true,
+            ConfigurationSaving = {
+                Enabled = false
+            }
+        })
+
+        subGui:CreateToggle({
+            Name = "Bật/Tắt Click TP",
+            CurrentValue = teleportEnabled,
+            Callback = function(val)
+                teleportEnabled = val
+            end
+        })
     end
 })
 
