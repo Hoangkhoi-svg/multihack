@@ -29,13 +29,13 @@ SafeChat("👑 Nhà Vua Đã Tới | The King Has Arrived 👑")
 
 -- Notifications
 StarterGui:SetCore("SendNotification", {
-    Title = "🚀 KOIHXZ HUB ĐANG KHỞI ĐỘNG...",
+    Title = "🚀 KOIHXZ LOAD",
     Text = "Chuẩn bị quét toàn bộ server",
     Duration = 3
 })
 task.delay(3.2, function()
     StarterGui:SetCore("SendNotification", {
-        Title = "🛡️ KOIHXZ HUB THỐNG TRỊ SERVER",
+        Title = "🛡️ KOIHXZ HUB",
         Text = "Hitbox auto toàn server. Người mới cũng dính.",
         Icon = "rbxassetid://7489181066",
         Duration = 6
@@ -178,7 +178,7 @@ local jumpSlider = MainTab:CreateSlider({
 MainTab:CreateSection("Combat")
 -- Hitbox Toggle
 local hitboxToggleUI = MainTab:CreateToggle({
-    Name = "Hitbox",
+    Name = "⭐Hitbox",
     CurrentValue = _G.Disabled,
     Flag = "HitboxToggle",
     Callback = function(Value)
@@ -205,7 +205,7 @@ local hitboxToggleUI = MainTab:CreateToggle({
 local espToggleUI = MainTab:CreateToggle({
     Name = "ESP",
     CurrentValue = _G.ESPEnabled,
-    Flag = "ESPToggle",
+    Flag = "💯ESPToggle",
     Callback = function(Value)
         _G.ESPEnabled = Value
         for _, p in pairs(Players:GetPlayers()) do
