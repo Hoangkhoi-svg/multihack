@@ -224,32 +224,30 @@ local espToggleUI = MainTab:CreateToggle({
 local teleportEnabled = false
 
 MainTab:CreateButton({
-    Name = "Click TP",
-    Callback = function()
-        local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield/library.lua"))()
+	Name = "Click TP",
+	Callback = function()
+		local subWindow = Rayfield:CreateWindow({
+			Name = "⚡ CLICK TELEPORT MENU",
+			LoadingTitle = "KOIHXZ HUB",
+			LoadingSubtitle = "by Khôi",
+			ConfigurationSaving = {
+				Enabled = false
+			},
+			Discord = {
+				Enabled = false
+			},
+			KeySystem = false
+		})
 
-        local subWindow = Rayfield:CreateWindow({
-            Name = "⚡ CLICK TELEPORT MENU",
-            LoadingTitle = "KOIHXZ HUB",
-            LoadingSubtitle = "by Khôi",
-            ConfigurationSaving = {
-                Enabled = false
-            },
-            Discord = {
-                Enabled = false
-            },
-            KeySystem = false
-        })
-
-        subWindow:CreateToggle({
-            Name = "🛸 Bật/Tắt Click TP",
-            CurrentValue = teleportEnabled,
-            Flag = "ClickTPSubToggle",
-            Callback = function(value)
-                teleportEnabled = value
-            end
-        })
-    end
+		subWindow:CreateToggle({
+			Name = "🛰️ Bật/Tắt Click TP",
+			CurrentValue = teleportEnabled,
+			Flag = "ClickTP_SubToggle",
+			Callback = function(value)
+				teleportEnabled = value
+			end
+		})
+	end
 })
 
 -- TP (Click/Touch) handling
