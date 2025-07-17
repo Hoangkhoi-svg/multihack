@@ -1,9 +1,6 @@
---// ✅ KOIHXZ HUB - UI NÚT TRÒN MỞ MENU GIỮA MÀN HÌNH (ĐÃ FIX)
--- Gồm: Walk, Jump, Hitbox Toggle, ClickTP, ESP, Auto Hitbox, Chat Exec
-
---// ✅ CONFIG
+-- Tích hợp Rayfield UI vào script KOIHXZ HUB
 _G.HeadSize = 50
-_G.Disabled = true
+_G.Disabled = true  -- Hitbox mặc định ON
 local SavedSpeed, SavedJump = 16, 50
 
 local Players = game:GetService("Players")
@@ -13,7 +10,7 @@ local TextChatService = game:GetService("TextChatService")
 local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
---// ✅ CHAT EXEC
+-- Chat System Message
 local function SafeChat(msg)
     pcall(function()
         if TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral") then
@@ -30,16 +27,29 @@ local function SafeChat(msg)
 end
 SafeChat("👑 Nhà Vua Đã Tới | The King Has Arrived 👑")
 
---// ✅ THÔNG BÁO EXEC
-StarterGui:SetCore("SendNotification", {Title="🚀KOIHXZ HUB ĐANG KHỞI ĐỘNG...", Text="Chuẩn bị quét toàn bộ server", Duration=3})
+-- Notifications
+StarterGui:SetCore("SendNotification", {
+    Title = "🚀 KOIHXZ HUB ĐANG KHỞI ĐỘNG...",
+    Text = "Chuẩn bị quét toàn bộ server",
+    Duration = 3
+})
 task.delay(3.2, function()
-    StarterGui:SetCore("SendNotification", {Title="🛡️KOIHXZ HUB THỐNG TRỊ SERVER", Text="Hitbox auto toàn server. Người mới cũng dính.", Icon="rbxassetid://7489181066", Duration=6})
+    StarterGui:SetCore("SendNotification", {
+        Title = "🛡️ KOIHXZ HUB THỐNG TRỊ SERVER",
+        Text = "Hitbox auto toàn server. Người mới cũng dính.",
+        Icon = "rbxassetid://7489181066",
+        Duration = 6
+    })
 end)
 task.delay(6.5, function()
-    StarterGui:SetCore("SendNotification", {Title="⭐ HAHAAHAHAH ⭐", Text=" ĐỊT MẸ TỤI MÀY ", Duration=8})
+    StarterGui:SetCore("SendNotification", {
+        Title = "⭐ HAHAAHAHAH ⭐",
+        Text = " ĐỊT MẸ TỤI MÀY ",
+        Duration = 8
+    })
 end)
 
---// ✅ AUTO HITBOX + GIỮ SPEED/JUMP
+-- Hitbox và giữ tốc độ/jump
 RunService.RenderStepped:Connect(function()
     if _G.Disabled then
         for _, v in ipairs(Players:GetPlayers()) do
@@ -50,7 +60,7 @@ RunService.RenderStepped:Connect(function()
                         hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
                         hrp.Transparency = 0.7
                         hrp.BrickColor = BrickColor.new("Really blue")
-                        hrp.Material = "Neon"
+                        hrp.Material = Enum.Material.Neon
                         hrp.CanCollide = false
                     end)
                 end
@@ -64,7 +74,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
---// ✅ APPLY HITBOX NGƯỜI MỚI
+-- Gắn hitbox cho người mới vào nếu đang bật
 Players.PlayerAdded:Connect(function(p)
     p.CharacterAdded:Connect(function()
         repeat wait() until p.Character and p.Character:FindFirstChild("HumanoidRootPart")
@@ -76,7 +86,7 @@ Players.PlayerAdded:Connect(function(p)
                     hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
                     hrp.Transparency = 0.7
                     hrp.BrickColor = BrickColor.new("Really blue")
-                    hrp.Material = "Neon"
+                    hrp.Material = Enum.Material.Neon
                     hrp.CanCollide = false
                 end)
             end
@@ -84,209 +94,164 @@ Players.PlayerAdded:Connect(function(p)
     end)
 end)
 
---// ✅ ESP TÊN - HIỆN NGAY LẬP TỨC KHI EXEC
+-- ESP Tên
 _G.ESPEnabled = true
-
 function attachESP(char, name)
-	local head = char:FindFirstChild("Head")
-	if head and not head:FindFirstChild("KOIHXZ_ESP") then
-		local b = Instance.new("BillboardGui", head)
-		b.Name = "KOIHXZ_ESP"
-		b.Size = UDim2.new(0,60,0,20)
-		b.Adornee = head
-		b.AlwaysOnTop = true
-		b.Enabled = _G.ESPEnabled -- ✅ Áp dụng theo trạng thái bật/tắt
-
-		local t = Instance.new("TextLabel", b)
-		t.Size = UDim2.new(1,0,1,0)
-		t.BackgroundTransparency = 1
-		t.Text = name
-		t.TextColor3 = Color3.new(1,1,1)
-		t.TextStrokeTransparency = 0
-		t.TextScaled = true
-		t.Font = Enum.Font.GothamBold
-	end
+    local head = char:FindFirstChild("Head")
+    if head and not head:FindFirstChild("KOIHXZ_ESP") then
+        local b = Instance.new("BillboardGui", head)
+        b.Name = "KOIHXZ_ESP"
+        b.Size = UDim2.new(0,60,0,20)
+        b.Adornee = head
+        b.AlwaysOnTop = true
+        b.Enabled = _G.ESPEnabled
+        local t = Instance.new("TextLabel", b)
+        t.Size = UDim2.new(1,0,1,0)
+        t.BackgroundTransparency = 1
+        t.Text = name
+        t.TextColor3 = Color3.new(1,1,1)
+        t.TextStrokeTransparency = 0
+        t.TextScaled = true
+        t.Font = Enum.Font.GothamBold
+    end
 end
-
 function createESP(p)
-	if p == player then return end
-
-	-- Gắn ESP ngay nếu đã có nhân vật
-	if p.Character then
-		attachESP(p.Character, p.Name)
-	end
-
-	-- Gắn lại khi nhân vật mới spawn
-	p.CharacterAdded:Connect(function(char)
-		repeat wait() until char:FindFirstChild("Head")
-		attachESP(char, p.Name)
-	end)
+    if p == player then return end
+    if p.Character then
+        attachESP(p.Character, p.Name)
+    end
+    p.CharacterAdded:Connect(function(char)
+        repeat wait() until char:FindFirstChild("Head")
+        attachESP(char, p.Name)
+    end)
 end
-
--- Gắn ESP cho toàn bộ người chơi hiện tại
 for _, p in pairs(Players:GetPlayers()) do
-	createESP(p)
+    createESP(p)
 end
-
--- Gắn cho người mới vào server
 Players.PlayerAdded:Connect(function(p)
-	createESP(p)
+    createESP(p)
 end)
 
---// ✅ UI TRÒN + MENU
-local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-gui.Name = "KOIHXZ_MAIN"
-gui.ResetOnSpawn = false
+-- ======= TẠO GIAO DIỆN RAYFIELD =======
+-- Load thư viện Rayfield
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua", true))()
 
-local mainBtn = Instance.new("ImageButton", gui)
-mainBtn.Name = "MainToggle"
-mainBtn.Size = UDim2.new(0, 60, 0, 60)
-mainBtn.Position = UDim2.new(0, 20, 0.8, 0)
-mainBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-mainBtn.Image = "rbxassetid://160408646"
-mainBtn.AutoButtonColor = true
+-- Tạo cửa sổ chính
+local Window = Rayfield:CreateWindow({
+    Name = "KOIHXZ HUB",
+    LoadingTitle = "KOIHXZ HUB UI",
+    LoadingSubtitle = "By KoiHxz",
+    ConfigurationSaving = {
+        Enabled = false,
+        FolderName = nil,
+        FileName = ""
+    }
+})
 
-local menu = Instance.new("Frame", gui)
-menu.Size = UDim2.new(0, 240, 0, 270)
-menu.Position = UDim2.new(0.5, -120, 0.5, -110)
-menu.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-menu.Visible = false
-Instance.new("UICorner", menu).CornerRadius = UDim.new(0, 12)
+-- Tạo các tab và mục
+local MainTab = Window:CreateTab("Main", 4483362458)
+-- Phần Movement
+MainTab:CreateSection("Movement")
+-- WalkSpeed Slider
+local walkSlider = MainTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {0, 300},
+    Increment = 1,
+    CurrentValue = SavedSpeed,
+    Flag = "WalkSpeed",
+    Callback = function(Value)
+        SavedSpeed = Value
+    end
+})
+-- JumpPower Slider
+local jumpSlider = MainTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {0, 200},
+    Increment = 1,
+    CurrentValue = SavedJump,
+    Flag = "JumpPower",
+    Callback = function(Value)
+        SavedJump = Value
+    end
+})
+-- Phần Combat
+MainTab:CreateSection("Combat")
+-- Hitbox Toggle
+local hitboxToggleUI = MainTab:CreateToggle({
+    Name = "Hitbox",
+    CurrentValue = _G.Disabled,
+    Flag = "HitboxToggle",
+    Callback = function(Value)
+        _G.Disabled = Value
+        if not Value then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= player then
+                    pcall(function()
+                        local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            hrp.Size = Vector3.new(2, 2, 1)
+                            hrp.Transparency = 1
+                            hrp.BrickColor = BrickColor.new("Medium stone grey")
+                            hrp.Material = Enum.Material.Plastic
+                            hrp.CanCollide = true
+                        end
+                    end)
+                end
+            end
+        end
+    end
+})
+-- ESP Toggle
+local espToggleUI = MainTab:CreateToggle({
+    Name = "ESP",
+    CurrentValue = _G.ESPEnabled,
+    Flag = "ESPToggle",
+    Callback = function(Value)
+        _G.ESPEnabled = Value
+        for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("Head") then
+                local esp = p.Character.Head:FindFirstChild("KOIHXZ_ESP")
+                if esp then
+                    esp.Enabled = Value
+                end
+            end
+        end
+    end
+})
+-- Phần Teleport
+MainTab:CreateSection("Teleport")
+-- Click TP Toggle
+local teleportEnabled = false
+local tpToggleUI = MainTab:CreateToggle({
+    Name = "Click TP",
+    CurrentValue = teleportEnabled,
+    Flag = "ClickTP",
+    Callback = function(Value)
+        teleportEnabled = Value
+    end
+})
 
-mainBtn.MouseButton1Click:Connect(function()
-    menu.Visible = not menu.Visible
-end)
-
--- Walk Input
-local walkBox = Instance.new("TextBox", menu)
-walkBox.PlaceholderText = "WalkSpeed (16)"
-walkBox.Size = UDim2.new(1, -20, 0, 40)
-walkBox.Position = UDim2.new(0, 10, 0, 10)
-walkBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
-walkBox.TextColor3 = Color3.new(1,1,1)
-walkBox.Font = Enum.Font.Gotham
-walkBox.TextScaled = true
-walkBox.ClearTextOnFocus = false
-Instance.new("UICorner", walkBox)
-walkBox.FocusLost:Connect(function()
-    local val = tonumber(walkBox.Text)
-    if val then SavedSpeed = val end
-end)
-
--- Jump Input
-local jumpBox = Instance.new("TextBox", menu)
-jumpBox.PlaceholderText = "JumpPower (50)"
-jumpBox.Size = UDim2.new(1, -20, 0, 40)
-jumpBox.Position = UDim2.new(0, 10, 0, 60)
-jumpBox.BackgroundColor3 = Color3.fromRGB(50,50,50)
-jumpBox.TextColor3 = Color3.new(1,1,1)
-jumpBox.Font = Enum.Font.Gotham
-jumpBox.TextScaled = true
-jumpBox.ClearTextOnFocus = false
-Instance.new("UICorner", jumpBox)
-jumpBox.FocusLost:Connect(function()
-    local val = tonumber(jumpBox.Text)
-    if val then SavedJump = val end
-end)
-
--- HITBOX TOGGLE
-local hitboxToggle = Instance.new("TextButton", menu)
-hitboxToggle.Size = UDim2.new(1, -20, 0, 40)
-hitboxToggle.Position = UDim2.new(0, 10, 0, 110)
-hitboxToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-hitboxToggle.TextColor3 = Color3.new(1,1,1)
-hitboxToggle.Font = Enum.Font.GothamBold
-hitboxToggle.TextScaled = true
-hitboxToggle.Text = "🎯 Hitbox: ON"
-Instance.new("UICorner", hitboxToggle)
-
-hitboxToggle.MouseButton1Click:Connect(function()
-    _G.Disabled = not _G.Disabled
-    hitboxToggle.Text = _G.Disabled and "🎯 Hitbox: ON" or "🎯 Hitbox: OFF"
-    hitboxToggle.BackgroundColor3 = _G.Disabled and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(80, 80, 80)
-    if not _G.Disabled then
-        for _, v in pairs(Players:GetPlayers()) do
-            if v ~= player then
-                pcall(function()
-                    local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        hrp.Size = Vector3.new(2, 2, 1)
-                        hrp.Transparency = 1
-                        hrp.BrickColor = BrickColor.new("Medium stone grey")
-                        hrp.Material = Enum.Material.Plastic
-                        hrp.CanCollide = true
-                    end
-                end)
+-- TP (Click/Touch) handling
+local mouse = player:GetMouse()
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not teleportEnabled then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local pos = mouse.Hit and mouse.Hit.Position
+        if pos then
+            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0))
             end
         end
     end
 end)
-
--- ESP TOGGLE
-local espToggle = Instance.new("TextButton", menu)
-espToggle.Size = UDim2.new(1, -20, 0, 40)
-espToggle.Position = UDim2.new(0, 10, 0, 210)
-espToggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-espToggle.TextColor3 = Color3.new(1,1,1)
-espToggle.Font = Enum.Font.GothamBold
-espToggle.TextScaled = true
-espToggle.Text = "🧠 ESP: ON"
-Instance.new("UICorner", espToggle)
-
-espToggle.MouseButton1Click:Connect(function()
-	_G.ESPEnabled = not _G.ESPEnabled
-	espToggle.Text = _G.ESPEnabled and "🧠 ESP: ON" or "🧠 ESP: OFF"
-	espToggle.BackgroundColor3 = _G.ESPEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(80, 80, 80)
-
-	-- Tắt/Bật BillboardGui
-	for _, p in pairs(Players:GetPlayers()) do
-		if p.Character and p.Character:FindFirstChild("Head") then
-			local head = p.Character.Head
-			local esp = head:FindFirstChild("KOIHXZ_ESP")
-			if esp then
-				esp.Enabled = _G.ESPEnabled
-			end
-		end
-	end
-end)
-
--- CLICK TP TOGGLE
-local teleportEnabled = false
-local tpToggle = Instance.new("TextButton", menu)
-tpToggle.Size = UDim2.new(1, -20, 0, 40)
-tpToggle.Position = UDim2.new(0, 10, 0, 160)
-tpToggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
-tpToggle.TextColor3 = Color3.new(1,1,1)
-tpToggle.Font = Enum.Font.GothamBold
-tpToggle.TextScaled = true
-tpToggle.Text = "🛸 Click TP: OFF"
-Instance.new("UICorner", tpToggle)
-
-tpToggle.MouseButton1Click:Connect(function()
-    teleportEnabled = not teleportEnabled
-    tpToggle.Text = teleportEnabled and "🛸 Click TP: ON" or "🛸 Click TP: OFF"
-    tpToggle.BackgroundColor3 = teleportEnabled and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 60)
-end)
-
--- TP support (Mobile + PC)
-local mouse = player:GetMouse()
-UIS.InputBegan:Connect(function(i, g)
-    if g or not teleportEnabled then return end
-    if i.UserInputType == Enum.UserInputType.MouseButton1 then
-        local pos = mouse.Hit and mouse.Hit.Position
-        if pos then
-            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0)) end
-        end
-    end
-end)
-
-UIS.TouchTap:Connect(function(_, g)
-    if g or not teleportEnabled then return end
+UIS.TouchTap:Connect(function(_, gameProcessed)
+    if gameProcessed or not teleportEnabled then return end
     local pos = mouse.Hit and mouse.Hit.Position
     if pos then
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0)) end
+        if hrp then
+            hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0))
+        end
     end
 end)
-
