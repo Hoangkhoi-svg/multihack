@@ -147,7 +147,7 @@ mainBtn.Image = "rbxassetid://160408646"
 mainBtn.AutoButtonColor = true
 
 local menu = Instance.new("Frame", gui)
-menu.Size = UDim2.new(0, 240, 0, 220)
+menu.Size = UDim2.new(0, 240, 0, 270)
 menu.Position = UDim2.new(0.5, -120, 0.5, -110)
 menu.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 menu.Visible = false
