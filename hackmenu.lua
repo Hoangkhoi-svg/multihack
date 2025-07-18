@@ -535,4 +535,157 @@ VisualTab:CreateToggle({
             crosshair2.Visible = true
             StarterGui:SetCore("SendNotification", {Title = "Crosshair", Text = "Crosshair đã bật!", Duration = 3})
         else
-            StarterGui:SetCore("SendNotification", {Title = "Crosshair", Text = "Crosshair đã tắt!", Dur
+            StarterGui:SetCore("SendNotification", {Title = "Crosshair", Text = "Crosshair đã tắt!", Duration = 3})
+        end
+    end,
+})
+
+-- ==== TAB SERVER ====
+local ServerTab = Window:CreateTab("🔧 Server", 6004287365)
+-- Rejoin
+ServerTab:CreateButton({ Name = "🔄 Rejoin", Callback = function()
+    local TS = game:GetService("TeleportService")
+    TS:Teleport(game.PlaceId, game.Players.LocalPlayer)
+end })
+
+-- Server Hop
+ServerTab:CreateButton({ Name = "🌐 Server Hop", Callback = function()
+    local HttpService = game:GetService("HttpService")
+    local TS = game:GetService("TeleportService")
+    local placeId = game.PlaceId
+    local servers = HttpService:JSONDecode(game:HttpGet(("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100"):format(placeId))).data
+    local currentId = game.JobId
+    for _,s in ipairs(servers) do
+        if s.id~=currentId and s.playing<s.maxPlayers then
+            TS:TeleportToPlaceInstance(placeId, s.id, game.Players.LocalPlayer)
+            return
+        end
+    end
+end })
+
+-- Anti AFK
+ServerTab:CreateToggle({ Name = "🚫 Anti AFK", CurrentValue = false, Callback = function(state)
+    if state then
+        local vu = game:GetService("VirtualUser")
+        game.Players.LocalPlayer.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        end)
+    end
+end })
+
+-- Anti Kick/Ban fallback
+ServerTab:CreateToggle({ Name = "🛡️ Anti Kick", CurrentValue = false, Callback = function(state)
+    if state then
+        local plr = game.Players.LocalPlayer
+        plr.Kicked:Connect(function()
+            game:GetService("TeleportService"):Teleport(game.PlaceId, plr)
+        end)
+    end
+end })
+
+-- Phần Movement
+MainTab:CreateSection("Movement")
+-- WalkSpeed Slider
+local walkSlider = MainTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {0, 300},
+    Increment = 1,
+    CurrentValue = SavedSpeed,
+    Flag = "WalkSpeed",
+    Callback = function(Value)
+        SavedSpeed = Value
+    end
+})
+-- JumpPower Slider
+local jumpSlider = MainTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {0, 200},
+    Increment = 1,
+    CurrentValue = SavedJump,
+    Flag = "JumpPower",
+    Callback = function(Value)
+        SavedJump = Value
+    end
+})
+-- Phần Combat
+MainTab:CreateSection("Combat")
+-- Hitbox Toggle
+local hitboxToggleUI = MainTab:CreateToggle({
+    Name = "⭐Hitbox",
+    CurrentValue = _G.Disabled,
+    Flag = "HitboxToggle",
+    Callback = function(Value)
+        _G.Disabled = Value
+        if not Value then
+            for _, v in pairs(Players:GetPlayers()) do
+                if v ~= player then
+                    pcall(function()
+                        local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            hrp.Size = Vector3.new(2, 2, 1)
+                            hrp.Transparency = 1
+                            hrp.BrickColor = BrickColor.new("Medium stone grey")
+                            hrp.Material = Enum.Material.Plastic
+                            hrp.CanCollide = true
+                        end
+                    end)
+                end
+            end
+        end
+    end
+})
+-- ESP Toggle
+local espToggleUI = MainTab:CreateToggle({
+    Name = "ESP",
+    CurrentValue = _G.ESPEnabled,
+    Flag = "💯ESPToggle",
+    Callback = function(Value)
+        _G.ESPEnabled = Value
+        for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("Head") then
+                local esp = p.Character.Head:FindFirstChild("KOIHXZ_ESP")
+                if esp then
+                    esp.Enabled = Value
+                end
+            end
+        end
+    end
+})
+
+-- Click TP Toggle
+local teleportEnabled = false
+MainTab:CreateToggle({
+    Name = "🛰️ Click TP",
+    CurrentValue = teleportEnabled,
+    Flag = "ClickTP",
+    Callback = function(Value)
+        teleportEnabled = Value
+    end
+})
+
+-- TP (Click/Touch) handling
+local mouse = player:GetMouse()
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not teleportEnabled then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local pos = mouse.Hit and mouse.Hit.Position
+        if pos then
+            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0))
+            end
+        end
+    end
+end)
+UIS.TouchTap:Connect(function(_, gameProcessed)
+    if gameProcessed or not teleportEnabled then return end
+    local pos = mouse.Hit and mouse.Hit.Position
+    if pos then
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0))
+        end
+    end
+end)
