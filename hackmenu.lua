@@ -165,7 +165,7 @@ MainTab:CreateToggle({
     end
 })
 
--- infiniti jump 
+-- Thêm toggle Infinite Jump vào đây
 local infiniteJumpEnabled = false
 MainTab:CreateToggle({
     Name = "🦘 Infinite Jump",
@@ -561,7 +561,6 @@ updatePlayers()
 
 local UIS = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
-
 UIS.JumpRequest:Connect(function()
     if _G.InfiniteJumpEnabled then
         local char = player.Character
