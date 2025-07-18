@@ -584,14 +584,41 @@ ServerTab:CreateButton({
     end
 })
 
--- Teleport To Player
-ServerTab:CreateDropdown({
+-- Tạo dropdown Teleport To Player luôn cập nhật danh sách
+local tpDropdown -- lưu ref dropdown để update options
+
+local function getPlayerList()
+    local list = {}
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= game.Players.LocalPlayer then
+            table.insert(list, p.Name)
+        end
+    end
+    if #list == 0 then
+        table.insert(list, "No players available")
+    end
+    return list
+end
+
+tpDropdown = ServerTab:CreateDropdown({
     Name = "🚪 Teleport To Player",
-    Options = {"Select a player"},
-    CurrentOption = "Select a player",
+    Options = getPlayerList(),
+    CurrentOption = "",
     Flag = "TeleportToPlayer",
     Callback = function(Value)
-        if Value ~= "Select a player" then
-            local targetPlayer = Players:FindFirstChild(Value)
-            if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                local 
+        if Value and Value ~= "" and Value ~= "No players available" then
+            local target = game.Players:FindFirstChild(Value)
+            local myChar = game.Players.LocalPlayer.Character
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                myChar.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+            end
+        end
+    end,
+})
+
+-- Tự động cập nhật danh sách khi có người vào/ra
+local function refreshDropdown()
+    tpDropdown:SetOptions(getPlayerList())
+end
+game.Players.PlayerAdded:Connect(refreshDropdown)
+game.Players.PlayerRemoving:Connect(refreshDropdown)
