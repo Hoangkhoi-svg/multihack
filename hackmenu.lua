@@ -148,200 +148,391 @@ local Window = Rayfield:CreateWindow({
     }
 })
 
--- Tạo các tab và mục
+-- Tạo các tab
 local MainTab = Window:CreateTab("Main", 4483362458)
 
 -- ==== TAB COMBAT ====
 local CombatTab = Window:CreateTab("⚔️ Combat", 6023426912)
+
+-- Aimbot Toggle
 CombatTab:CreateToggle({
-    Name = "☠️ One Hit Mode",
-    CurrentValue = _G.OneHit or false,
-    Flag = "OneHit",
-    Callback = function(val) _G.OneHit = val end,
+    Name = "🎯 Aimbot",
+    CurrentValue = _G.AimbotEnabled or false,
+    Flag = "Aimbot",
+    Callback = function(val)
+        _G.AimbotEnabled = val
+        -- Logic aimbot sẽ cần thêm raycasting và xử lý camera, đây là placeholder
+        if val then
+            StarterGui:SetCore("SendNotification", {Title = "Aimbot", Text = "Aimbot đã bật!", Duration = 3})
+        else
+            StarterGui:SetCore("SendNotification", {Title = "Aimbot", Text = "Aimbot đã tắt!", Duration = 3})
+        end
+    end,
+})
+
+-- Triggerbot Toggle
+CombatTab:CreateToggle({
+    Name = "🔫 Triggerbot",
+    CurrentValue = _G.TriggerbotEnabled or false,
+    Flag = "Triggerbot",
+    Callback = function(val)
+        _G.TriggerbotEnabled = val
+        -- Logic triggerbot cần thêm kiểm tra raycast đến đối thủ
+        if val then
+            StarterGui:SetCore("SendNotification", {Title = "Triggerbot", Text = "Triggerbot đã bật!", Duration = 3})
+isuus
+        else
+            StarterGui:SetCore("SendNotification", {Title = "Triggerbot", Text = "Triggerbot đã tắt!", Duration = 3})
+        end
+    end,
+})
+
+-- Damage Multiplier Slider
+CombatTab:CreateSlider({
+    Name = "💥 Damage Multiplier",
+    Range = {1, 10},
+    Increment = 0.5,
+    CurrentValue = _G.DamageMultiplier or 1,
+    Flag = "DamageMultiplier",
+    Callback = function(val)
+        _G.DamageMultiplier = val
+        StarterGui:SetCore("SendNotification", {Title = "Damage Multiplier", Text = "Hệ số sát thương: " .. val, Duration = 3})
+    end,
+})
+
+-- Auto-heal Toggle
+CombatTab:CreateToggle({
+    Name = "❤️ Auto-heal",
+    CurrentValue = _G.AutoHealEnabled or false,
+    Flag = "AutoHeal",
+    Callback = function(val)
+        _G.AutoHealEnabled = val
+        if val then
+            spawn(function()
+                while _G.AutoHealEnabled do
+                    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+                    if hum and hum.Health < hum.MaxHealth * 0.5 then
+                        hum.Health = hum.MaxHealth
+                        StarterGui:SetCore("SendNotification", {Title = "Auto-heal", Text = "Đã hồi máu!", Duration = 2})
+                    end
+                    wait(1)
+                end
+            end)
+        end
+    end,
+})
+
+-- Stun on Hit Toggle
+CombatTab:CreateToggle({
+    Name = "⚡ Stun on Hit",
+    CurrentValue = _G.StunOnHitEnabled or false,
+    Flag = "StunOnHit",
+    Callback = function(val)
+        _G.StunOnHitEnabled = val
+        -- Logic stun cần thêm xử lý sự kiện tấn công
+        if val then
+            StarterGui:SetCore("SendNotification", {Title = "Stun on Hit", Text = "Làm choáng đã bật!", Duration = 3})
+        else
+            StarterGui:SetCore("SendNotification", {Title = "Stun on Hit", Text = "Làm choáng đã tắt!", Duration = 3})
+        end
+    end,
+})
+
+-- Stun Duration Slider
+CombatTab:CreateSlider({
+    Name = "⏱️ Stun Duration",
+    Range = {1, 10},
+    Increment = 0.5,
+    CurrentValue = _G.StunDuration or 2,
+    Flag = "StunDuration",
+    Callback = function(val)
+        _G.StunDuration = val
+        StarterGui:SetCore("SendNotification", {Title = "Stun Duration", Text = "Thời gian làm choáng: " .. val .. " giây", Duration = 3})
+    end,
 })
 
 -- ==== TAB PLAYER ====
 local PlayerTab = Window:CreateTab("🕹️ Player", 6026568198)
+
+-- Invisibility Toggle
 PlayerTab:CreateToggle({
-    Name = "🪂 Fly Mode",
-    CurrentValue = _G.FlyEnabled or false,
-    Flag = "FlyMode",
+    Name = "👻 Invisibility",
+    CurrentValue = _G.InvisibilityEnabled or false,
+    Flag = "Invisibility",
     Callback = function(val)
-        _G.FlyEnabled = val
+        _G.InvisibilityEnabled = val
         if val then
-            local plr = game:GetService("Players").LocalPlayer
-            local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
-            if hum then hum.PlatformStand = true end
-            -- simple fly logic
-            game:GetService("RunService").RenderStepped:Connect(function()
-                if _G.FlyEnabled and plr.Character and hum then
-                    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
-                    hrp.Velocity = Vector3.new(0, 50, 0)
+            local char = player.Character
+            if char then
+                for _, part in pairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") or part:IsA("MeshPart") then
+                        part.Transparency = 1
+                    end
+                end
+                StarterGui:SetCore("SendNotification", {Title = "Invisibility", Text = "Đã vô hình!", Duration = 3})
+            end
+        else
+            local char = player.Character
+            if char then
+                for _, part in pairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") or part:IsA("MeshPart") then
+                        part.Transparency = 0
+                    end
+                end
+                StarterGui:SetCore("SendNotification", {Title = "Invisibility", Text = "Hết vô hình!", Duration = 3})
+            end
+        end
+    end,
+})
+
+-- No Clip Toggle
+PlayerTab:CreateToggle({
+    Name = "🚪 No Clip",
+    CurrentValue = _G.NoClipEnabled or false,
+    Flag = "NoClip",
+    Callback = function(val)
+        _G.NoClipEnabled = val
+        if val then
+            RunService.Stepped:Connect(function()
+                if _G.NoClipEnabled and player.Character then
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
                 end
             end)
+            StarterGui:SetCore("SendNotification", {Title = "No Clip", Text = "Đi xuyên tường đã bật!", Duration = 3})
         else
-            local plr = game:GetService("Players").LocalPlayer
-            local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
-            if hum then hum.PlatformStand = false end
+            if player.Character then
+                for _, part in pairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+                StarterGui:SetCore("SendNotification", {Title = "No Clip", Text = "Đi xuyên tường đã tắt!", Duration = 3})
+            end
+        end
+    end,
+})
+
+-- Teleport to Player Button
+PlayerTab:CreateButton({
+    Name = "🧑‍🚀 Teleport to Player",
+    Callback = function()
+        local players = {}
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player then
+                table.insert(players, p.Name)
+            end
+        end
+        Rayfield:Prompt({
+            Title = "Chọn người chơi",
+            Content = "Chọn người chơi để teleport tới",
+            Options = players,
+            Callback = function(selected)
+                local target = Players:FindFirstChild(selected)
+                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        hrp.CFrame = target.Character.HumanoidRootPart.CFrame
+                        StarterGui:SetCore("SendNotification", {Title = "Teleport", Text = "Đã teleport tới " .. selected, Duration = 3})
+                    end
+                end
+            end,
+        })
+    end,
+})
+
+-- Bring Player to Me Button
+PlayerTab:CreateButton({
+    Name = "📍 Bring Player to Me",
+    Callback = function()
+        local players = {}
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player then
+                table.insert(players, p.Name)
+            end
+        end
+        Rayfield:Prompt({
+            Title = "Chọn người chơi",
+            Content = "Chọn người chơi để kéo tới bạn",
+            Options = players,
+            Callback = function(selected)
+                local target = Players:FindFirstChild(selected)
+                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        target.Character.HumanoidRootPart.CFrame = hrp.CFrame
+                        StarterGui:SetCore("SendNotification", {Title = "Bring Player", Text = "Đã kéo " .. selected .. " tới bạn", Duration = 3})
+                    end
+                end
+            end,
+        })
+    end,
+})
+
+-- Speed Boost Toggle
+PlayerTab:CreateToggle({
+    Name = "⚡ Speed Boost",
+    CurrentValue = _G.SpeedBoostEnabled or false,
+    Flag = "SpeedBoost",
+    Callback = function(val)
+        _G.SpeedBoostEnabled = val
+        if val then
+            local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = hum.WalkSpeed * 2
+                StarterGui:SetCore("SendNotification", {Title = "Speed Boost", Text = "Tăng tốc độ x2!", Duration = 3})
+            end
+        else
+            local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum.WalkSpeed = SavedSpeed
+                StarterGui:SetCore("SendNotification", {Title = "Speed Boost", Text = "Tốc độ trở lại bình thường!", Duration = 3})
+            end
         end
     end,
 })
 
 -- ==== TAB VISUAL ====
 local VisualTab = Window:CreateTab("🎨 Visual", 6034567821)
+
+-- Chams Toggle
 VisualTab:CreateToggle({
-    Name = "🧊 Box ESP",
-    CurrentValue = _G.BoxESP or false,
-    Flag = "BoxESP",
-    Callback = function(val) _G.BoxESP = val end,
-})
-
--- ==== TAB SERVER ====
-local ServerTab = Window:CreateTab("🔧 Server", 6004287365)
--- Rejoin
-ServerTab:CreateButton({ Name = "🔄 Rejoin", Callback = function()
-    local TS = game:GetService("TeleportService")
-    TS:Teleport(game.PlaceId, game.Players.LocalPlayer)
-end })
-
--- Server Hop
-ServerTab:CreateButton({ Name = "🌐 Server Hop", Callback = function()
-    local HttpService = game:GetService("HttpService")
-    local TS = game:GetService("TeleportService")
-    local placeId = game.PlaceId
-    local servers = HttpService:JSONDecode(game:HttpGet(("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100"):format(placeId))).data
-    local currentId = game.JobId
-    for _,s in ipairs(servers) do
-        if s.id~=currentId and s.playing<s.maxPlayers then
-            TS:TeleportToPlaceInstance(placeId, s.id, game.Players.LocalPlayer)
-            return
-        end
-    end
-end })
-
--- Anti AFK
-ServerTab:CreateToggle({ Name = "🚫 Anti AFK", CurrentValue = false, Callback = function(state)
-    if state then
-        local vu = game:GetService("VirtualUser")
-        game.Players.LocalPlayer.Idled:Connect(function()
-            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-            wait(1)
-            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-        end)
-    end
-end })
-
--- Anti Kick/Ban fallback
-ServerTab:CreateToggle({ Name = "🛡️ Anti Kick", CurrentValue = false, Callback = function(state)
-    if state then
-        local plr = game.Players.LocalPlayer
-        plr.Kicked:Connect(function()
-            game:GetService("TeleportService"):Teleport(game.PlaceId, plr)
-        end)
-    end
-end })
-
--- Phần Movement
-MainTab:CreateSection("Movement")
--- WalkSpeed Slider
-local walkSlider = MainTab:CreateSlider({
-    Name = "WalkSpeed",
-    Range = {0, 300},
-    Increment = 1,
-    CurrentValue = SavedSpeed,
-    Flag = "WalkSpeed",
-    Callback = function(Value)
-        SavedSpeed = Value
-    end
-})
--- JumpPower Slider
-local jumpSlider = MainTab:CreateSlider({
-    Name = "JumpPower",
-    Range = {0, 200},
-    Increment = 1,
-    CurrentValue = SavedJump,
-    Flag = "JumpPower",
-    Callback = function(Value)
-        SavedJump = Value
-    end
-})
--- Phần Combat
-MainTab:CreateSection("Combat")
--- Hitbox Toggle
-local hitboxToggleUI = MainTab:CreateToggle({
-    Name = "⭐Hitbox",
-    CurrentValue = _G.Disabled,
-    Flag = "HitboxToggle",
-    Callback = function(Value)
-        _G.Disabled = Value
-        if not Value then
-            for _, v in pairs(Players:GetPlayers()) do
-                if v ~= player then
-                    pcall(function()
-                        local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            hrp.Size = Vector3.new(2, 2, 1)
-                            hrp.Transparency = 1
-                            hrp.BrickColor = BrickColor.new("Medium stone grey")
-                            hrp.Material = Enum.Material.Plastic
-                            hrp.CanCollide = true
+    Name = "🌟 Chams",
+    CurrentValue = _G.ChamsEnabled or false,
+    Flag = "Chams",
+    Callback = function(val)
+        _G.ChamsEnabled = val
+        if val then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= player and p.Character then
+                    for _, part in pairs(p.Character:GetDescendants()) do
+                        if part:IsA("BasePart") or part:IsA("MeshPart") then
+                            local highlight = Instance.new("Highlight", part)
+                            highlight.FillColor = _G.ChamsColor or Color3.fromRGB(255, 0, 0)
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            highlight.FillTransparency = 0.5
                         end
-                    end)
+                    end
                 end
             end
-        end
-    end
-})
--- ESP Toggle
-local espToggleUI = MainTab:CreateToggle({
-    Name = "ESP",
-    CurrentValue = _G.ESPEnabled,
-    Flag = "💯ESPToggle",
-    Callback = function(Value)
-        _G.ESPEnabled = Value
-        for _, p in pairs(Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("Head") then
-                local esp = p.Character.Head:FindFirstChild("KOIHXZ_ESP")
-                if esp then
-                    esp.Enabled = Value
+            StarterGui:SetCore("SendNotification", {Title = "Chams", Text = "Chams đã bật!", Duration = 3})
+        else
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= player and p.Character then
+                    for _, part in pairs(p.Character:GetDescendants()) do
+                        if part:IsA("BasePart") or part:IsA("MeshPart") then
+                            local highlight = part:FindFirstChildOfClass("Highlight")
+                            if highlight then highlight:Destroy() end
+                        end
+                    end
                 end
             end
+            StarterGui:SetCore("SendNotification", {Title = "Chams", Text = "Chams đã tắt!", Duration = 3})
         end
-    end
+    end,
 })
 
--- Click TP Toggle
-local teleportEnabled = false
-MainTab:CreateToggle({
-    Name = "🛰️ Click TP",
-    CurrentValue = teleportEnabled,
-    Flag = "ClickTP",
-    Callback = function(Value)
-        teleportEnabled = Value
-    end
+-- Tracers Toggle
+VisualTab:CreateToggle({
+    Name = "➡️ Tracers",
+    CurrentValue = _G.TracersEnabled or false,
+    Flag = "Tracers",
+    Callback = function(val)
+        _G.TracersEnabled = val
+        if val then
+            spawn(function()
+                while _G.TracersEnabled do
+                    for _, p in pairs(Players:GetPlayers()) do
+                        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                            local line = Drawing.new("Line")
+                            line.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+                            line.To = workspace.CurrentCamera:WorldToViewportPoint(p.Character.HumanoidRootPart.Position)
+                            line.Color = _G.ChamsColor or Color3.fromRGB(255, 0, 0)
+                            line.Thickness = 2
+                            line.Transparency = 1
+                            game:GetService("RunService").RenderStepped:Wait()
+                            line:Remove()
+                        end
+                    end
+                end
+            end)
+            StarterGui:SetCore("SendNotification", {Title = "Tracers", Text = "Tracers đã bật!", Duration = 3})
+        else
+            StarterGui:SetCore("SendNotification", {Title = "Tracers", Text = "Tracers đã tắt!", Duration = 3})
+        end
+    end,
 })
 
--- TP (Click/Touch) handling
-local mouse = player:GetMouse()
-UIS.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed or not teleportEnabled then return end
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        local pos = mouse.Hit and mouse.Hit.Position
-        if pos then
-            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0))
+-- Chams Color Picker
+VisualTab:CreateColorPicker({
+    Name = "🎨 Chams Color",
+    Color = _G.ChamsColor or Color3.fromRGB(255, 0, 0),
+    Flag = "ChamsColor",
+    Callback = function(val)
+        _G.ChamsColor = val
+        if _G.ChamsEnabled then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= player and p.Character then
+                    for _, part in pairs(p.Character:GetDescendants()) do
+                        if part:IsA("BasePart") or part:IsA("MeshPart") then
+                            local highlight = part:FindFirstChildOfClass("Highlight")
+                            if highlight then highlight.FillColor = val end
+                        end
+                    end
+                end
             end
+            StarterGui:SetCore("SendNotification", {Title = "Chams Color", Text = "Đã thay đổi màu chams!", Duration = 3})
         end
-    end
-end)
-UIS.TouchTap:Connect(function(_, gameProcessed)
-    if gameProcessed or not teleportEnabled then return end
-    local pos = mouse.Hit and mouse.Hit.Position
-    if pos then
-        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            hrp.CFrame = CFrame.new(pos + Vector3.new(0,3,0))
-        end
-    end
-end)
+    end,
+})
+
+-- FOV Circle Slider
+VisualTab:CreateSlider({
+    Name = "🔲 FOV Circle",
+    Range = {50, 200},
+    Increment = 5,
+    CurrentValue = _G.FOVCircle or 100,
+    Flag = "FOVCircle",
+    Callback = function(val)
+        _G.FOVCircle = val
+        local circle = Drawing.new("Circle")
+        circle.Radius = val
+        circle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
+        circle.Color = Color3.fromRGB(255, 255, 255)
+        circle.Thickness = 1
+        circle.Transparency = 0.5
+        circle.Visible = true
+        game:GetService("RunService").RenderStepped:Wait()
+        circle:Remove()
+        StarterGui:SetCore("SendNotification", {Title = "FOV Circle", Text = "Kích thước FOV: " .. val, Duration = 3})
+    end,
+})
+
+-- Crosshair Toggle
+VisualTab:CreateToggle({
+    Name = "🎯 Crosshair",
+    CurrentValue = _G.CrosshairEnabled or false,
+    Flag = "Crosshair",
+    Callback = function(val)
+        _G.CrosshairEnabled = val
+        if val then
+            local crosshair = Drawing.new("Line")
+            crosshair.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2 - 10, workspace.CurrentCamera.ViewportSize.Y / 2)
+            crosshair.To = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2 + 10, workspace.CurrentCamera.ViewportSize.Y / 2)
+            crosshair.Color = Color3.fromRGB(255, 255, 255)
+            crosshair.Thickness = 2
+            crosshair.Transparency = 1
+            crosshair.Visible = true
+            local crosshair2 = Drawing.new("Line")
+            crosshair2.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2 - 10)
+            crosshair2.To = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2 + 10)
+            crosshair2.Color = Color3.fromRGB(255, 255, 255)
+            crosshair2.Thickness = 2
+            crosshair2.Transparency = 1
+            crosshair2.Visible = true
+            StarterGui:SetCore("SendNotification", {Title = "Crosshair", Text = "Crosshair đã bật!", Duration = 3})
+        else
+            StarterGui:SetCore("SendNotification", {Title = "Crosshair", Text = "Crosshair đã tắt!", Dur
