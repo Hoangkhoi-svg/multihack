@@ -5,6 +5,7 @@ local SavedSpeed, SavedJump = 16, 50
 _G.FlyEnabled = false
 _G.BoxESP = false
 _G.ESPEnabled = true
+_G.InfiniteJumpEnabled = false
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -161,6 +162,18 @@ MainTab:CreateToggle({
     Flag = "ClickTP",
     Callback = function(Value)
         teleportEnabled = Value
+    end
+})
+
+-- infiniti jump 
+local infiniteJumpEnabled = false
+MainTab:CreateToggle({
+    Name = "🦘 Infinite Jump",
+    CurrentValue = infiniteJumpEnabled,
+    Flag = "InfiniteJump",
+    Callback = function(Value)
+        infiniteJumpEnabled = Value
+        _G.InfiniteJumpEnabled = Value
     end
 })
 
@@ -543,3 +556,17 @@ end
 game.Players.PlayerAdded:Connect(updatePlayers)
 game.Players.PlayerRemoving:Connect(updatePlayers)
 updatePlayers()
+
+--// jump inffi 
+
+local UIS = game:GetService("UserInputService")
+local player = game.Players.LocalPlayer
+
+UIS.JumpRequest:Connect(function()
+    if _G.InfiniteJumpEnabled then
+        local char = player.Character
+        if char and char:FindFirstChildOfClass("Humanoid") then
+            char:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
