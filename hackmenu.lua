@@ -292,6 +292,43 @@ CombatTab:CreateToggle({
 local PlayerTab = Window:CreateTab("🕹️ Player", 6026568198)
 local flyEnabled = false
 local flyConn, flyGyro, flyVel
+local upPressed, downPressed = false, false
+
+-- MOBILE BUTTONS
+local function createMobileFlyButtons()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "FlyButtons"
+    gui.Parent = game.Players.LocalPlayer.PlayerGui
+    gui.ResetOnSpawn = false
+
+    local upBtn = Instance.new("TextButton")
+    upBtn.Name = "FlyUp"
+    upBtn.Size = UDim2.new(0, 60, 0, 60)
+    upBtn.Position = UDim2.new(1, -75, 0.7, 0)
+    upBtn.Text = "↑"
+    upBtn.TextSize = 40
+    upBtn.BackgroundTransparency = 0.4
+    upBtn.BackgroundColor3 = Color3.fromRGB(90,200,255)
+    upBtn.Parent = gui
+
+    local downBtn = Instance.new("TextButton")
+    downBtn.Name = "FlyDown"
+    downBtn.Size = UDim2.new(0, 60, 0, 60)
+    downBtn.Position = UDim2.new(1, -75, 0.7, 70)
+    downBtn.Text = "↓"
+    downBtn.TextSize = 40
+    downBtn.BackgroundTransparency = 0.4
+    downBtn.BackgroundColor3 = Color3.fromRGB(90,200,255)
+    downBtn.Parent = gui
+
+    upBtn.MouseButton1Down:Connect(function() upPressed = true end)
+    upBtn.MouseButton1Up:Connect(function() upPressed = false end)
+    downBtn.MouseButton1Down:Connect(function() downPressed = true end)
+    downBtn.MouseButton1Up:Connect(function() downPressed = false end)
+    return gui
+end
+
+local flyBtnGui = nil
 
 function startFly()
     local char = player.Character
@@ -310,13 +347,31 @@ function startFly()
     flyVel.velocity = Vector3.new(0,0.1,0)
     flyVel.maxForce = Vector3.new(9e9,9e9,9e9)
 
-    flyConn = game:GetService("RunService").RenderStepped:Connect(function()
+    -- Tạo nút mobile nếu là mobile
+    if UIS.TouchEnabled then
+        flyBtnGui = createMobileFlyButtons()
+    end
+
+    flyConn = RunService.RenderStepped:Connect(function()
         local cam = workspace.CurrentCamera
         local moveVec = Vector3.new()
+
+        -- PC: Phím W/A/S/D di chuyển ngang, Space lên, Shift xuống
         if UIS:IsKeyDown(Enum.KeyCode.W) then moveVec = moveVec + cam.CFrame.LookVector end
         if UIS:IsKeyDown(Enum.KeyCode.S) then moveVec = moveVec - cam.CFrame.LookVector end
         if UIS:IsKeyDown(Enum.KeyCode.A) then moveVec = moveVec - cam.CFrame.RightVector end
         if UIS:IsKeyDown(Enum.KeyCode.D) then moveVec = moveVec + cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then moveVec = moveVec + Vector3.new(0,1,0) end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then moveVec = moveVec + Vector3.new(0,-1,0) end
+
+        -- MOBILE: Joystick + nút bay lên/xuống
+        if hum.MoveDirection.Magnitude > 0 then
+            moveVec = Vector3.new(hum.MoveDirection.X, moveVec.Y, hum.MoveDirection.Z)
+        end
+        if upPressed then moveVec = moveVec + Vector3.new(0,1,0) end
+        if downPressed then moveVec = moveVec + Vector3.new(0,-1,0) end
+
+        -- Tăng tốc bay (FlySpeed)
         if moveVec.Magnitude > 0 then
             flyVel.Velocity = moveVec.Unit * FlySpeed * 5
         else
@@ -330,6 +385,8 @@ function stopFly()
     if flyConn then flyConn:Disconnect() flyConn = nil end
     if flyGyro then flyGyro:Destroy() flyGyro = nil end
     if flyVel then flyVel:Destroy() flyVel = nil end
+    if flyBtnGui then flyBtnGui:Destroy() flyBtnGui = nil end
+    upPressed = false; downPressed = false
     local char = player.Character
     if char and char:FindFirstChildOfClass("Humanoid") then
         char:FindFirstChildOfClass("Humanoid").PlatformStand = false
