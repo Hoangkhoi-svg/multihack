@@ -150,6 +150,178 @@ local Window = Rayfield:CreateWindow({
 
 -- Tạo các tab và mục
 local MainTab = Window:CreateTab("Main", 4483362458)
+
+-- ==== TAB COMBAT ====
+-- Auto Attack Toggle
+CombatTab:CreateToggle({
+    Name = "⚔️ Auto Attack",
+    CurrentValue = _G.AutoAttack or false,
+    Flag = "AutoAttack",
+    Callback = function(val)
+        _G.AutoAttack = val
+    end
+})
+
+-- Fast Attack Toggle
+CombatTab:CreateToggle({
+    Name = "🔥 Fast Attack",
+    CurrentValue = _G.FastAttack or false,
+    Flag = "FastAttack",
+    Callback = function(val)
+        _G.FastAttack = val
+    end
+})
+
+local CombatTab = Window:CreateTab("⚔️ Combat", 6023426912)
+CombatTab:CreateToggle({
+    Name = "☠️ One Hit Mode",
+    CurrentValue = _G.OneHit or false,
+    Flag = "OneHit",
+    Callback = function(val) _G.OneHit = val end,
+})
+
+-- ==== TAB PLAYER ====
+local PlayerTab = Window:CreateTab("🕹️ Player", 6026568198)
+PlayerTab:CreateToggle({
+    Name = "🪂 Fly Mode",
+    CurrentValue = _G.FlyEnabled or false,
+    Flag = "FlyMode",
+    Callback = function(val)
+        _G.FlyEnabled = val
+        local plr = game.Players.LocalPlayer
+        local char = plr.Character
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if val then
+            local bv = Instance.new("BodyVelocity")
+            bv.Name = "KOIHXZ_FlyBV"
+            bv.MaxForce = Vector3.new(9e4, 9e4, 9e4)
+            bv.Velocity = Vector3.new(0, 0, 0)
+            bv.Parent = hrp
+            RunService:BindToRenderStep("KOIHXZ_Fly", Enum.RenderPriority.Camera.Value, function()
+                local moveDir = Vector3.new()
+                if UIS:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + workspace.CurrentCamera.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - workspace.CurrentCamera.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - workspace.CurrentCamera.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + workspace.CurrentCamera.CFrame.RightVector end
+                bv.Velocity = moveDir.Unit * (SavedSpeed or 50)
+            end)
+        else
+            local char = game.Players.LocalPlayer.Character
+            if char then
+                local bv = char:FindFirstChild("HumanoidRootPart"):FindFirstChild("KOIHXZ_FlyBV")
+                if bv then bv:Destroy() end
+            end
+            RunService:UnbindFromRenderStep("KOIHXZ_Fly")
+        end
+    end
+})
+
+
+-- ==== TAB VISUAL ====
+-- Highlight Toggle (Outline players)
+VisualTab:CreateToggle({
+    Name = "✨ Outline ESP",
+    CurrentValue = _G.HighlightESP or false,
+    Flag = "HighlightESP",
+    Callback = function(val)
+        _G.HighlightESP = val
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local highlight = p.Character:FindFirstChild("KOIHXZ_Highlight") or Instance.new("Highlight", p.Character)
+                highlight.Name = "KOIHXZ_Highlight"
+                highlight.Enabled = val
+            end
+        end
+    end
+})
+
+-- Distance Tag Toggle
+VisualTab:CreateToggle({
+    Name = "📏 Distance Tag",
+    CurrentValue = _G.DistanceTag or false,
+    Flag = "DistanceTag",
+    Callback = function(val)
+        _G.DistanceTag = val
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("Head") then
+                local gui = p.Character.Head:FindFirstChild("KOIHXZ_Distance") or Instance.new("BillboardGui", p.Character.Head)
+                gui.Name = "KOIHXZ_Distance"
+                gui.Size = UDim2.new(0,100,0,20)
+                gui.Adornee = p.Character.Head
+                gui.AlwaysOnTop = true
+                local label = gui:FindFirstChild("DistLabel") or Instance.new("TextLabel", gui)
+                label.Name = "DistLabel"
+                label.Size = UDim2.new(1,0,1,0)
+                label.BackgroundTransparency = 1
+                label.TextColor3 = Color3.new(1,1,0)
+                label.Font = Enum.Font.GothamBold
+                label.TextScaled = true
+                if val then
+                    RunService:BindToRenderStep("KOIHXZ_Distance"..p.UserId, Enum.RenderPriority.Camera.Value, function()
+                        local pos1 = player.Character.HumanoidRootPart.Position
+                        local pos2 = p.Character.HumanoidRootPart.Position
+                        local dist = math.floor((pos1 - pos2).Magnitude)
+                        label.Text = dist.."m"
+                    end)
+                else
+                    local id = "KOIHXZ_Distance"..p.UserId
+                    RunService:UnbindFromRenderStep(id)
+                    gui:Destroy()
+                end
+            end
+        end
+    end
+})
+
+local VisualTab = Window:CreateTab("🎨 Visual", 6034567821)
+
+
+-- ==== TAB SERVER ====
+local ServerTab = Window:CreateTab("🔧 Server", 6004287365)
+-- Rejoin
+ServerTab:CreateButton({ Name = "🔄 Rejoin", Callback = function()
+    local TS = game:GetService("TeleportService")
+    TS:Teleport(game.PlaceId, game.Players.LocalPlayer)
+end })
+
+-- Server Hop
+ServerTab:CreateButton({ Name = "🌐 Server Hop", Callback = function()
+    local HttpService = game:GetService("HttpService")
+    local TS = game:GetService("TeleportService")
+    local placeId = game.PlaceId
+    local servers = HttpService:JSONDecode(game:HttpGet(("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100"):format(placeId))).data
+    local currentId = game.JobId
+    for _,s in ipairs(servers) do
+        if s.id~=currentId and s.playing<s.maxPlayers then
+            TS:TeleportToPlaceInstance(placeId, s.id, game.Players.LocalPlayer)
+            return
+        end
+    end
+end })
+
+-- Anti AFK
+ServerTab:CreateToggle({ Name = "🚫 Anti AFK", CurrentValue = false, Callback = function(state)
+    if state then
+        local vu = game:GetService("VirtualUser")
+        game.Players.LocalPlayer.Idled:Connect(function()
+            vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            wait(1)
+            vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        end)
+    end
+end })
+
+-- Anti Kick/Ban fallback
+ServerTab:CreateToggle({ Name = "🛡️ Anti Kick", CurrentValue = false, Callback = function(state)
+    if state then
+        local plr = game.Players.LocalPlayer
+        plr.Kicked:Connect(function()
+            game:GetService("TeleportService"):Teleport(game.PlaceId, plr)
+        end)
+    end
+end })
+
 -- Phần Movement
 MainTab:CreateSection("Movement")
 -- WalkSpeed Slider
