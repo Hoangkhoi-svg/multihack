@@ -1,8 +1,8 @@
 -- KOIHXZ HUB - FINAL BY KoiHxz
+
 _G.HeadSize = 50
 _G.Disabled = true
 local SavedSpeed, SavedJump = 16, 50
-_G.FlyEnabled = false
 _G.ESPEnabled = true
 
 local Players = game:GetService("Players")
@@ -12,7 +12,7 @@ local TextChatService = game:GetService("TextChatService")
 local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
-local FlySpeed = 2 -- Default fly speed, chỉnh bằng slider
+local FlySpeed = 2
 
 -- Chat System Message
 local function SafeChat(msg)
@@ -207,14 +207,7 @@ MainTab:CreateButton({
     Callback = function()
         player.CameraMaxZoomDistance = 999
         player.CameraMinZoomDistance = 0
-        SafeChat("Max Zoom: 999, Min Zoom: 0 (đã mở khoá camera)")
-    end
-})
-
--- Infinite Jump
-local infJump = false
-MainTab:CreateToggle({
-    Name = "🌙 Infinite Jump",
+        SafeChat("Max Zoom: 999, Min Zoom Jump",
     CurrentValue = infJump,
     Callback = function(val)
         infJump = val
@@ -226,21 +219,14 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
--- TP to Spawn (nếu có SpawnLocation)
-MainTab:CreateButton({
-    Name = "🌀 TP To Spawn",
-    Callback = function()
-        for _,v in pairs(workspace:GetDescendants()) do
+-- TP toDescendants()) do
             if v:IsA("SpawnLocation") then
                 local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if hrp then
                     hrp.CFrame = v.CFrame + Vector3.new(0, 5, 0)
                     SafeChat("Đã TP tới vị trí spawn.")
                 end
-                return
-            end
-        end
-        SafeChat("Không tìm thấy spawn location!")
+                return location!")
     end
 })
 
@@ -335,7 +321,7 @@ VisualTab:CreateToggle({
     end
 })
 
--- Bật/tắt ESP tên người chơi (giữ lại vì hữu dụng)
+-- ESP tên người chơi (giữ lại vì hữu dụng)
 VisualTab:CreateToggle({
     Name = "💯 ESP",
     CurrentValue = _G.ESPEnabled,
@@ -353,7 +339,7 @@ VisualTab:CreateToggle({
     end
 })
 
--- Fullbright (lúc nào cũng sáng map)
+-- Fullbright
 VisualTab:CreateToggle({
     Name = "🌞 Fullbright",
     CurrentValue = false,
@@ -401,25 +387,20 @@ local function createMobileFlyButtons()
     local downBtn = Instance.new("TextButton")
     downBtn.Name = "FlyDown"
     downBtn.Size = UDim2.new(0, 60, 0, 60)
-    downBtn.Position = UDim2.new(1, -75, 0.7, 70)
-    downBtn.Text = "↓"
+    downBtn.Position = UDim2.new(1, -75,"
     downBtn.TextSize = 40
     downBtn.BackgroundTransparency = 0.4
     downBtn.BackgroundColor3 = Color3.fromRGB(90,200,255)
     downBtn.Parent = gui
 
     upBtn.MouseButton1Down:Connect(function() upPressed = true end)
-    upBtn.MouseButton1Up:Connect(function() upPressed = false end)
-    downBtn.MouseButton1Down:Connect(function() downPressed = true end)
-    downBtn.MouseButton1Up:Connect(function() downPressed = false end)
+    upBtn.MouseButton1Up:Connect(function() = down1PressedBtn.MouseButton1Up:Connect(function() downPressed = false end)
     return gui
 end
 
 function startFly()
-    local char = player.Character
-    if not char or not char:FindFirstChildOfClass("Humanoid") then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
+    local char.Character    charFind(" return =Class("Humanoid")
+    = char:FindChild("Part") char:FindFirstChild("Torso")")
     if not root then return end
 
     hum.PlatformStand = true
@@ -562,7 +543,7 @@ ServerTab:CreateToggle({
     end
 })
 
--- Anti Lag REAL (xoá effect, mesh, decal, sound, particle, shadow)
+-- Anti Lag REAL
 ServerTab:CreateButton({
     Name = "🚀 Anti Lag REAL",
     Callback = function()
@@ -584,7 +565,7 @@ ServerTab:CreateButton({
     end
 })
 
--- Tạo dropdown Teleport To Player luôn cập nhật danh sách
+-- Teleport To Player (Dropdown auto update)
 local tpDropdown -- lưu ref dropdown để update options
 
 local function getPlayerList()
@@ -616,7 +597,6 @@ tpDropdown = ServerTab:CreateDropdown({
     end,
 })
 
--- Tự động cập nhật danh sách khi có người vào/ra
 local function refreshDropdown()
     tpDropdown:SetOptions(getPlayerList())
 end
