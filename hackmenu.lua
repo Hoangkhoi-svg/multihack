@@ -152,26 +152,6 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Main", 4483362458)
 
 -- ==== TAB COMBAT ====
--- Auto Attack Toggle
-CombatTab:CreateToggle({
-    Name = "⚔️ Auto Attack",
-    CurrentValue = _G.AutoAttack or false,
-    Flag = "AutoAttack",
-    Callback = function(val)
-        _G.AutoAttack = val
-    end
-})
-
--- Fast Attack Toggle
-CombatTab:CreateToggle({
-    Name = "🔥 Fast Attack",
-    CurrentValue = _G.FastAttack or false,
-    Flag = "FastAttack",
-    Callback = function(val)
-        _G.FastAttack = val
-    end
-})
-
 local CombatTab = Window:CreateTab("⚔️ Combat", 6023426912)
 CombatTab:CreateToggle({
     Name = "☠️ One Hit Mode",
@@ -188,94 +168,33 @@ PlayerTab:CreateToggle({
     Flag = "FlyMode",
     Callback = function(val)
         _G.FlyEnabled = val
-        local plr = game.Players.LocalPlayer
-        local char = plr.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
         if val then
-            local bv = Instance.new("BodyVelocity")
-            bv.Name = "KOIHXZ_FlyBV"
-            bv.MaxForce = Vector3.new(9e4, 9e4, 9e4)
-            bv.Velocity = Vector3.new(0, 0, 0)
-            bv.Parent = hrp
-            RunService:BindToRenderStep("KOIHXZ_Fly", Enum.RenderPriority.Camera.Value, function()
-                local moveDir = Vector3.new()
-                if UIS:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + workspace.CurrentCamera.CFrame.LookVector end
-                if UIS:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - workspace.CurrentCamera.CFrame.LookVector end
-                if UIS:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - workspace.CurrentCamera.CFrame.RightVector end
-                if UIS:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + workspace.CurrentCamera.CFrame.RightVector end
-                bv.Velocity = moveDir.Unit * (SavedSpeed or 50)
+            local plr = game:GetService("Players").LocalPlayer
+            local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.PlatformStand = true end
+            -- simple fly logic
+            game:GetService("RunService").RenderStepped:Connect(function()
+                if _G.FlyEnabled and plr.Character and hum then
+                    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                    hrp.Velocity = Vector3.new(0, 50, 0)
+                end
             end)
         else
-            local char = game.Players.LocalPlayer.Character
-            if char then
-                local bv = char:FindFirstChild("HumanoidRootPart"):FindFirstChild("KOIHXZ_FlyBV")
-                if bv then bv:Destroy() end
-            end
-            RunService:UnbindFromRenderStep("KOIHXZ_Fly")
+            local plr = game:GetService("Players").LocalPlayer
+            local hum = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum.PlatformStand = false end
         end
-    end
+    end,
 })
-
 
 -- ==== TAB VISUAL ====
--- Highlight Toggle (Outline players)
-VisualTab:CreateToggle({
-    Name = "✨ Outline ESP",
-    CurrentValue = _G.HighlightESP or false,
-    Flag = "HighlightESP",
-    Callback = function(val)
-        _G.HighlightESP = val
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                local highlight = p.Character:FindFirstChild("KOIHXZ_Highlight") or Instance.new("Highlight", p.Character)
-                highlight.Name = "KOIHXZ_Highlight"
-                highlight.Enabled = val
-            end
-        end
-    end
-})
-
--- Distance Tag Toggle
-VisualTab:CreateToggle({
-    Name = "📏 Distance Tag",
-    CurrentValue = _G.DistanceTag or false,
-    Flag = "DistanceTag",
-    Callback = function(val)
-        _G.DistanceTag = val
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= player and p.Character and p.Character:FindFirstChild("Head") then
-                local gui = p.Character.Head:FindFirstChild("KOIHXZ_Distance") or Instance.new("BillboardGui", p.Character.Head)
-                gui.Name = "KOIHXZ_Distance"
-                gui.Size = UDim2.new(0,100,0,20)
-                gui.Adornee = p.Character.Head
-                gui.AlwaysOnTop = true
-                local label = gui:FindFirstChild("DistLabel") or Instance.new("TextLabel", gui)
-                label.Name = "DistLabel"
-                label.Size = UDim2.new(1,0,1,0)
-                label.BackgroundTransparency = 1
-                label.TextColor3 = Color3.new(1,1,0)
-                label.Font = Enum.Font.GothamBold
-                label.TextScaled = true
-                if val then
-                    RunService:BindToRenderStep("KOIHXZ_Distance"..p.UserId, Enum.RenderPriority.Camera.Value, function()
-                        local pos1 = player.Character.HumanoidRootPart.Position
-                        local pos2 = p.Character.HumanoidRootPart.Position
-                        local dist = math.floor((pos1 - pos2).Magnitude)
-                        label.Text = dist.."m"
-                    end)
-                else
-                    local id = "KOIHXZ_Distance"..p.UserId
-                    RunService:UnbindFromRenderStep(id)
-                    gui:Destroy()
-                end
-            end
-        end
-    end
-})
-
 local VisualTab = Window:CreateTab("🎨 Visual", 6034567821)
-
+VisualTab:CreateToggle({
+    Name = "🧊 Box ESP",
+    CurrentValue = _G.BoxESP or false,
+    Flag = "BoxESP",
+    Callback = function(val) _G.BoxESP = val end,
+})
 
 -- ==== TAB SERVER ====
 local ServerTab = Window:CreateTab("🔧 Server", 6004287365)
