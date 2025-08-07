@@ -1,12 +1,8 @@
--- KOIHXZ HUB - BẢN FIX CHỨC NĂNG
+-- KOIHXZ HUB - BẢN FIX FULL CHẠY ĐƯỢC
 _G.HeadSize = 50
 _G.Disabled = true
 local SavedSpeed, SavedJump = 16, 50
-_G.FlyEnabled = false
-_G.BoxESP = false
-_G.ESPEnabled = true
-_G.InfiniteJumpEnabled = false
-
+local FlySpeed = 2
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
@@ -14,9 +10,6 @@ local TextChatService = game:GetService("TextChatService")
 local UIS = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
-local FlySpeed = 2 -- Default fly speed, dùng cho slider
-
--- Chat System Message - FIXED
 local function SafeChat(msg)
     pcall(function()
         if TextChatService:FindFirstChild("TextChannels") and TextChatService.TextChannels:FindFirstChild("RBXGeneral") then
@@ -31,31 +24,14 @@ local function SafeChat(msg)
         end
     end)
 end
+
 SafeChat("👑 Nhà Vua Đã Tới | The King Has Arrived 👑")
 
--- Notifications
-StarterGui:SetCore("SendNotification", {
-    Title = "🚀 KOIHXZ LOAD",
-    Text = "Chuẩn bị quét toàn bộ server",
-    Duration = 3
-})
+StarterGui:SetCore("SendNotification", {Title = "🚀 KOIHXZ LOAD", Text = "Chuẩn bị quét toàn bộ server", Duration = 3})
 task.delay(3.2, function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "🛡️ KOIHXZ HUB",
-        Text = "Hitbox auto toàn server. Người mới cũng dính.",
-        Icon = "rbxassetid://7489181066",
-        Duration = 6
-    })
-end)
-task.delay(6.5, function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "⭐ HAHAAHAHAH ⭐",
-        Text = " ĐỊT MẸ TỤI MÀY ",
-        Duration = 8
-    })
+    StarterGui:SetCore("SendNotification", {Title = "🛡️ KOIHXZ HUB", Text = "Hitbox auto toàn server. Người mới cũng dính.", Icon = "rbxassetid://7489181066", Duration = 6})
 end)
 
--- Hitbox và giữ tốc độ/jump - FIXED
 local function updateHitbox(v)
     if v == player then return end
     local hrp = v.Character and v.Character:FindFirstChild("HumanoidRootPart")
@@ -76,7 +52,6 @@ RunService.RenderStepped:Connect(function()
             updateHitbox(v)
         end
     end
-    
     local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if hum then
         hum.WalkSpeed = SavedSpeed
@@ -84,7 +59,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- FIXED: Gắn hitbox cho người mới
 Players.PlayerAdded:Connect(function(p)
     p.CharacterAdded:Connect(function(char)
         repeat task.wait() until char:FindFirstChild("HumanoidRootPart")
@@ -94,25 +68,20 @@ Players.PlayerAdded:Connect(function(p)
     end)
 end)
 
--- ESP Tên - FIXED
 local function createESP(p)
     if p == player then return end
-    
     local function attachESP(char)
         local head = char:FindFirstChild("Head")
         if head then
-            -- Xóa ESP cũ nếu có
             local existingESP = head:FindFirstChild("KOIHXZ_ESP")
             if existingESP then existingESP:Destroy() end
-            
             local b = Instance.new("BillboardGui")
             b.Name = "KOIHXZ_ESP"
             b.Size = UDim2.new(0,60,0,20)
             b.Adornee = head
             b.AlwaysOnTop = true
-            b.Enabled = _G.ESPEnabled
+            b.Enabled = true
             b.Parent = head
-            
             local t = Instance.new("TextLabel")
             t.Size = UDim2.new(1,0,1,0)
             t.BackgroundTransparency = 1
@@ -124,7 +93,6 @@ local function createESP(p)
             t.Parent = b
         end
     end
-    
     if p.Character then
         attachESP(p.Character)
     end
@@ -136,10 +104,7 @@ for _, p in pairs(Players:GetPlayers()) do
 end
 Players.PlayerAdded:Connect(createESP)
 
--- Load Rayfield UI - GIỮ NGUYÊN
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua", true))()
-
--- Tạo cửa sổ chính - GIỮ NGUYÊN
 local Window = Rayfield:CreateWindow({
     Name = "KOIHXZ HUB",
     LoadingTitle = "KOIHXZ HUB UI",
@@ -151,7 +116,6 @@ local Window = Rayfield:CreateWindow({
     }
 })
 
--- Tab Main - GIỮ NGUYÊN
 local MainTab = Window:CreateTab("Main", 4483362458)
 MainTab:CreateSection("Teleport")
 local teleportEnabled = false
@@ -164,7 +128,6 @@ MainTab:CreateToggle({
     end
 })
 
--- Thêm toggle Infinite Jump - FIXED
 local infiniteJumpEnabled = false
 MainTab:CreateToggle({
     Name = "🦘 Infinite Jump",
@@ -176,7 +139,6 @@ MainTab:CreateToggle({
     end
 })
 
--- Click TP handling - FIXED FOR MOBILE
 local mouse = player:GetMouse()
 local function teleportTo(position)
     local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -187,7 +149,6 @@ end
 
 UIS.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed or not teleportEnabled then return end
-    
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         local ray = Ray.new(game.Workspace.CurrentCamera.CFrame.Position, game.Workspace.CurrentCamera.CFrame.LookVector * 1000)
         local part, position = game.Workspace:FindPartOnRay(ray, player.Character)
@@ -199,7 +160,6 @@ end)
 
 UIS.TouchTap:Connect(function(touchPositions, gameProcessed)
     if gameProcessed or not teleportEnabled then return end
-    
     local touchPosition = touchPositions[1]
     local ray = Ray.new(game.Workspace.CurrentCamera.CFrame.Position, (game.Workspace.CurrentCamera:ViewportPointToRay(touchPosition.X, touchPosition.Y).Direction * 1000))
     local part, position = game.Workspace:FindPartOnRay(ray, player.Character)
@@ -208,10 +168,8 @@ UIS.TouchTap:Connect(function(touchPositions, gameProcessed)
     end
 end)
 
--- TAB COMBAT - FIXED CHỨC NĂNG
 local CombatTab = Window:CreateTab("⚔️ Combat", 6023426912)
 
--- Kill Aura - FIXED
 local auraEnabled = false
 local auraRange = 15
 CombatTab:CreateToggle({
@@ -228,7 +186,6 @@ CombatTab:CreateToggle({
                             local target = v.Character.HumanoidRootPart
                             local plrHrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                             if plrHrp and (target.Position - plrHrp.Position).Magnitude <= auraRange then
-                                -- Simulate attack
                                 local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
                                 if tool then
                                     tool:Activate()
@@ -251,7 +208,6 @@ CombatTab:CreateSlider({
     Callback = function(val) auraRange = val end
 })
 
--- Invisibility - FIXED
 local invis = false
 CombatTab:CreateToggle({
     Name = "👻 Invisibility",
@@ -270,7 +226,6 @@ CombatTab:CreateToggle({
     end
 })
 
--- No Knockback - FIXED
 local knockback = false
 CombatTab:CreateToggle({
     Name = "🛡️ No Knockback",
@@ -289,7 +244,6 @@ CombatTab:CreateToggle({
     end
 })
 
--- Instant Respawn - FIXED
 local instantRespawn = false
 CombatTab:CreateToggle({
     Name = "⚡ Instant Respawn",
@@ -298,9 +252,8 @@ CombatTab:CreateToggle({
     Callback = function(val)
         instantRespawn = val
     end
-)
+})
 
--- Kết nối sự kiện respawn
 player.CharacterAdded:Connect(function(char)
     if instantRespawn then
         local hum = char:WaitForChild("Humanoid")
@@ -310,58 +263,43 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
--- TAB PLAYER - FIXED FLY MODE
 local PlayerTab = Window:CreateTab("🕹️ Player", 6026568198)
 local flyEnabled = false
 local flyConn, flyGyro, flyVel
 local upPressed, downPressed = false, false
 
--- FIXED: Fly mode hoạt động trên mobile
 local function startFly()
     local char = player.Character
     if not char or not char:FindFirstChildOfClass("Humanoid") then return end
     local hum = char:FindFirstChildOfClass("Humanoid")
     local root = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso")
     if not root then return end
-
     hum.PlatformStand = true
-    
-    -- Tạo các bộ điều khiển vật lý
     flyGyro = Instance.new("BodyGyro")
     flyGyro.P = 9e4
     flyGyro.maxTorque = Vector3.new(9e9,9e9,9e9)
     flyGyro.cframe = root.CFrame
     flyGyro.Parent = root
-
     flyVel = Instance.new("BodyVelocity")
     flyVel.velocity = Vector3.new(0,0.1,0)
     flyVel.maxForce = Vector3.new(9e9,9e9,9e9)
     flyVel.Parent = root
-
     flyConn = RunService.RenderStepped:Connect(function()
         local cam = workspace.CurrentCamera
         local moveVec = Vector3.new()
-
-        -- PC Controls
         if UIS:IsKeyDown(Enum.KeyCode.W) then moveVec = moveVec + cam.CFrame.LookVector end
         if UIS:IsKeyDown(Enum.KeyCode.S) then moveVec = moveVec - cam.CFrame.LookVector end
         if UIS:IsKeyDown(Enum.KeyCode.A) then moveVec = moveVec - cam.CFrame.RightVector end
         if UIS:IsKeyDown(Enum.KeyCode.D) then moveVec = moveVec + cam.CFrame.RightVector end
         if UIS:IsKeyDown(Enum.KeyCode.Space) then moveVec = moveVec + Vector3.new(0,1,0) end
         if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then moveVec = moveVec + Vector3.new(0,-1,0) end
-
-        -- Mobile Controls
         if upPressed then moveVec = moveVec + Vector3.new(0,1,0) end
         if downPressed then moveVec = moveVec + Vector3.new(0,-1,0) end
-
-        -- Apply movement
         if moveVec.Magnitude > 0 then
             flyVel.Velocity = moveVec.Unit * FlySpeed * 50
         else
             flyVel.Velocity = Vector3.new(0,0.1,0)
         end
-        
-        -- Update orientation
         flyGyro.CFrame = cam.CFrame
     end)
 end
@@ -371,7 +309,6 @@ local function stopFly()
     if flyGyro then flyGyro:Destroy() flyGyro = nil end
     if flyVel then flyVel:Destroy() flyVel = nil end
     upPressed = false; downPressed = false
-    
     local char = player.Character
     if char and char:FindFirstChildOfClass("Humanoid") then
         char:FindFirstChildOfClass("Humanoid").PlatformStand = false
@@ -384,11 +321,7 @@ PlayerTab:CreateToggle({
     Flag = "FlyMode",
     Callback = function(val)
         flyEnabled = val
-        if val then 
-            startFly() 
-        else 
-            stopFly() 
-        end
+        if val then startFly() else stopFly() end
     end,
 })
 
@@ -424,20 +357,12 @@ PlayerTab:CreateSlider({
     end
 })
 
--- Tab Visual - FIXED ESP TOGGLE
 local VisualTab = Window:CreateTab("🎨 Visual", 6034567821)
 VisualTab:CreateToggle({
-    Name = "🧊 Box ESP",
-    CurrentValue = _G.BoxESP or false,
-    Flag = "BoxESP",
-    Callback = function(val) _G.BoxESP = val end,
-})
-VisualTab:CreateToggle({
     Name = "💯 ESP",
-    CurrentValue = _G.ESPEnabled,
+    CurrentValue = true,
     Flag = "ESPToggle",
     Callback = function(Value)
-        _G.ESPEnabled = Value
         for _, p in pairs(Players:GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("Head") then
                 local esp = p.Character.Head:FindFirstChild("KOIHXZ_ESP")
@@ -448,18 +373,7 @@ VisualTab:CreateToggle({
         end
     end
 })
-VisualTab:CreateSlider({
-    Name = "🌞 Brightness",
-    Range = {0, 2},
-    Increment = 0.1,
-    CurrentValue = game.Lighting.Brightness,
-    Flag = "Brightness",
-    Callback = function(Value)
-        game.Lighting.Brightness = Value
-    end,
-})
 
--- Tab Server - FIXED SERVER HOP
 local ServerTab = Window:CreateTab("🔧 Server", 6004287365)
 ServerTab:CreateButton({
     Name = "🔄 Rejoin",
@@ -473,16 +387,13 @@ ServerTab:CreateButton({
         local HttpService = game:GetService("HttpService")
         local TS = game:GetService("TeleportService")
         local placeId = game.PlaceId
-        
         local servers = {}
         local success, result = pcall(function()
             return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"))
         end)
-        
         if success and result and result.data then
             servers = result.data
         end
-        
         local currentId = game.JobId
         for _, s in ipairs(servers) do
             if s.id ~= currentId and s.playing < s.maxPlayers then
@@ -507,46 +418,42 @@ ServerTab:CreateToggle({
     end
 })
 
--- FIXED: Cập nhật danh sách người chơi cho Dropdown
-local function updatePlayers()
-    local options = {"Select a player"}
+local function getPlayerList()
+    local list = {}
     for _, p in pairs(game.Players:GetPlayers()) do
-        if p ~= game.Players.LocalPlayer then
-            table.insert(options, p.Name)
+        if p ~= player then
+            table.insert(list, p.Name)
         end
     end
-    
-    -- Cập nhật dropdown nếu đã được tạo
-    if ServerTab and ServerTab.TeleportToPlayer then
-        ServerTab.TeleportToPlayer:SetOptions(options)
+    if #list == 0 then
+        table.insert(list, "No players available")
     end
+    return list
 end
 
--- Tạo dropdown lần đầu
-ServerTab:CreateDropdown({
+local tpDropdown
+tpDropdown = ServerTab:CreateDropdown({
     Name = "🚪 Teleport To Player",
-    Options = {"Select a player"},
-    CurrentOption = "Select a player",
+    Options = getPlayerList(),
+    CurrentOption = "",
     Flag = "TeleportToPlayer",
     Callback = function(Value)
-        if Value ~= "Select a player" then
-            local targetPlayer = game.Players:FindFirstChild(Value)
-            if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                local plrHrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if plrHrp then
-                    plrHrp.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
-                end
+        if Value and Value ~= "" and Value ~= "No players available" then
+            local target = game.Players:FindFirstChild(Value)
+            local myChar = player.Character
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") and myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                myChar.HumanoidRootPart.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
             end
         end
     end,
 })
 
--- Cập nhật danh sách người chơi
-game.Players.PlayerAdded:Connect(updatePlayers)
-game.Players.PlayerRemoving:Connect(updatePlayers)
-updatePlayers()
+local function refreshDropdown()
+    tpDropdown:SetOptions(getPlayerList())
+end
+game.Players.PlayerAdded:Connect(refreshDropdown)
+game.Players.PlayerRemoving:Connect(refreshDropdown)
 
--- FIXED: Infinite Jump
 UIS.JumpRequest:Connect(function()
     if _G.InfiniteJumpEnabled and player.Character then
         local hum = player.Character:FindFirstChildOfClass("Humanoid")
