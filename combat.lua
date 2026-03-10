@@ -1,40 +1,149 @@
--- KOIHXZ HUB - Combat Warriors Mobile Auto All (No Menu, Visible Notify 2026)
--- Fix thông báo: dùng TextLabel trên PlayerGui + print console
--- Load bằng: loadstring(game:HttpGet("https://raw.githubusercontent.com/Hoangkhoi-svg/multihack/refs/heads/main/combat.lua"))()
+-- KOIHXZ HUB - Combat Warriors Stable 2026
+
+repeat task.wait() until game:IsLoaded()
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local Workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
 local LocalPlayer = Players.LocalPlayer
-local StarterGui = game:GetService("StarterGui")
+repeat task.wait() until LocalPlayer
 
--- ================== CÀI ĐẶT ==================
-local HitboxSize = 38
-local ParryDelay = 0.08
-local Magnitude = 20
-local Transparency = 1
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- ================== THÔNG BÁO VISIBLE TRÊN MÀN HÌNH ==================
-local function ShowVisibleNotify(text)
+warn("KOIHXZ HUB STARTED")
+
+-- SETTINGS
+local HitboxSize = 35
+local AutoParryDelay = 0.08
+local ParryDistance = 18
+
+-- ================= NOTIFY =================
+local function notify(text)
+
     local gui = Instance.new("ScreenGui")
-    gui.Name = "KoiNotify"
-    gui.ResetOnSpawn = false
-    gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    gui.Name = "KOIHXZ_NOTIFY"
+    gui.Parent = PlayerGui
 
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.6, 0, 0.15, 0)
-    frame.Position = UDim2.new(0.2, 0, 0.4, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    frame.BackgroundTransparency = 0.4
+    frame.Size = UDim2.new(0.35,0,0.08,0)
+    frame.Position = UDim2.new(0.32,0,0.05,0)
+    frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
     frame.BorderSizePixel = 0
     frame.Parent = gui
 
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.Text = text
-    label.TextColor3 = Color3.fromRGB(255, 0, 0)
+    local txt = Instance.new("TextLabel")
+    txt.Size = UDim2.new(1,0,1,0)
+    txt.BackgroundTransparency = 1
+    txt.TextScaled = true
+    txt.Font = Enum.Font.GothamBold
+    txt.TextColor3 = Color3.fromRGB(255,70,70)
+    txt.Text = text
+    txt.Parent = frame
+
+    task.delay(5,function()
+        gui:Destroy()
+    end)
+
+end
+
+notify("KOIHXZ HUB LOADING...")
+print("KOIHXZ HUB LOADING")
+
+-- ================= HITBOX =================
+local function applyHitbox(chr)
+
+    for _,v in pairs(chr:GetDescendants()) do
+        if v:IsA("BasePart") then
+
+            pcall(function()
+                v.Size = Vector3.new(HitboxSize,HitboxSize,HitboxSize)
+                v.Transparency = 1
+                v.CanCollide = false
+                v.Massless = true
+            end)
+
+        end
+    end
+
+end
+
+-- ================= AUTO PARRY =================
+local function pressF()
+
+    VirtualInputManager:SendKeyEvent(true,Enum.KeyCode.F,false,game)
+    task.wait(0.05)
+    VirtualInputManager:SendKeyEvent(false,Enum.KeyCode.F,false,game)
+
+end
+
+local function autoParry(enemy)
+
+    if not enemy:FindFirstChild("HumanoidRootPart") then return end
+    if not LocalPlayer.Character then return end
+
+    local myroot = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not myroot then return end
+
+    local dist = (enemy.HumanoidRootPart.Position - myroot.Position).Magnitude
+
+    if dist < ParryDistance then
+
+        task.wait(AutoParryDelay)
+        pressF()
+
+    end
+
+end
+
+-- ================= PLAYER LOOP =================
+local function setupPlayer(plr)
+
+    if plr == LocalPlayer then return end
+
+    plr.CharacterAdded:Connect(function(char)
+
+        task.wait(1)
+
+        applyHitbox(char)
+
+        RunService.RenderStepped:Connect(function()
+
+            if char and char.Parent then
+                applyHitbox(char)
+                autoParry(char)
+            end
+
+        end)
+
+    end)
+
+end
+
+for _,plr in pairs(Players:GetPlayers()) do
+    setupPlayer(plr)
+end
+
+Players.PlayerAdded:Connect(setupPlayer)
+
+-- ================= FAST RESPAWN =================
+LocalPlayer.CharacterAdded:Connect(function(char)
+
+    local hum = char:WaitForChild("Humanoid")
+
+    hum.Died:Connect(function()
+
+        task.wait(0.05)
+        LocalPlayer:LoadCharacter()
+
+    end)
+
+end)
+
+notify("KOIHXZ HUB LOADED\nHitbox + Auto Parry + Fast Respawn")
+
+print("KOIHXZ HUB FULLY LOADED")    label.TextColor3 = Color3.fromRGB(255, 0, 0)
     label.TextScaled = true
     label.Font = Enum.Font.GothamBlack
     label.Parent = frame
