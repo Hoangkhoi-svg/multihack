@@ -208,6 +208,17 @@ CombatTab:CreateSlider({
     Callback = function(val) auraRange = val end
 })
 
+CombatTab:CreateSlider({
+    Name = "📦 Hitbox Size",
+    Range = {10, 100},
+    Increment = 5,
+    CurrentValue = _G.HeadSize,
+    Flag = "HitboxSize",
+    Callback = function(val)
+        _G.HeadSize = val
+    end
+})
+
 local invis = false
 CombatTab:CreateToggle({
     Name = "👻 Invisibility",
